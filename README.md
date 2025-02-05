@@ -1,24 +1,33 @@
-# Title of Program/Software :+1:
+# SongSwipe :musical_note::beetle: 
 
-Here goes a 1-2 sentence elevator pitch style explanation of the program/software you are demonstrating.  Keep it simple and easy to understand, technicalities go later.
+SongSwipe will be a mobile web application that allows for a easier, quicker, and more user-friendly experience of cleaning out a Spotify playlist.
 
 ## Description
 
-This is where you will put a much longer description of what the program/software achievies.  List important ideas / talking points that may be asked in interview questions.  Things such as data structures or algorithims used, special notes about the program, etc.
+It allows for a simple Tinder-inspired swipe left-or-right motion  to decide whether a song will remain in your playlist or be removed.  Previews of the song will be played automatically.  Not only can a user easily remove unwanted old songs from their own playlists, but also filter out songs from a copy of another users playlist to make it more personal to the user.
 
-![Screenshot](screenshot.png)
+<!-- ![Screenshot](screenshot.png) -->
+## Feature Plans
+### Core Features:
+- Swiping mechanic
+- Staging area for left and right swipes
+- Options to remove from playlist, move to a new playlist, etc. for staging areas
+- Preview tracks playing automatically
+- Song, album, artist info display
 
-## Features / Current Files if Folder (OPTIONAL)
+### Stretch Features:
+- YouTube API translation layer
+- Desktop version (Shouldn't be too hard)
+- Playlist discoverer from other people to copy, filter and save other peoples playlists
+- Pretty animations would be nice
+- Undo button
+- **Settings Options:** 
+    - Light / Dark Mode / Themes
+    - Language select would be nice
+    - Font Size
+    - Preview length tweaking
 
-* Here in list format will be all features of your application
-* It runs
-* It doesn't have error messages
-* You can also use this space for possible listing of files
-* Ex. Algorithims
-    * Merge Sort
-    * Heap Sort (Dear god)
-
-
+<!-- 
 ## Getting Started
 
 ### Dependencies (OPTIONAL)
@@ -38,26 +47,23 @@ python3 runmyprogram.py
 
 ## Future Plans (OPTIONAL)
 
-If there are any future plans for the future of the project, write and note them here.  This will show both users and yourself that you are not done, and it can be improved.
+If there are any future plans for the future of the project, write and note them here.  This will show both users and yourself that you are not done, and it can be improved. -->
 
 ## Authors
-
-:key: ListenToAJ
+- Christopher Coco
+- Raj Ray
+- Anthony Simao
+- Katiana Sourn
+- Nena Heng
 
 
 ## Version History
-
-* 0.1
-    * Initial version, any notes on og implementation.
-* 0.2
-    * Extra features / changes in version 2, short and concise.
+- 0.0
+    - We have nothing
 
 ## License
 
-© 2024 Anthony Simao
+© 2025 Christopher Coco, Raj Ray, Anthony Simao, Katiana Sourn, Nena Heng
 All rights reserved.
 
 ## Acknowledgments
-
-* [README-Template](https://gist.github.com/DomPizzie/7a5ff55ffa9081f2de27c315f5018afc)
-* [GeeksforGeeks](https://www.geeksforgeeks.org/working-with-pdf-files-in-python/)
