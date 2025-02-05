@@ -12,15 +12,30 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+    <!-- Enable standalone mode (full-screen) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="My Web App">
+    <meta name="viewport" 
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
   </head>
+
+
   <body>
     <div id="app_container">
+        <div id="header_container">
+            <div id="playlist_title">
+                <span class="subtitle">Current playlist:</span><br>
+                <span class="bold_title">Liked Songs</span>
+            </div>
+        </div>
         <div id="song_card" class="card">
             <img src="assets/img/Kid_Cudi.png" id="album_art" class="album">
             <div class="song_info_container">
                 <div class="song_info">
                     <span class="bold_title">Man On The Moon</span><br>
-                    Kid Cudi
+                    <span class="subtitle">Kid Cudi</span>          
                 </div>
             </div>
         </div>
