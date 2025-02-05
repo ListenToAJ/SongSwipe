@@ -1,0 +1,84 @@
+/* Non-Styling Blocks */
+
+.roboto-gf {
+    font-family: "Roboto", serif;
+    font-optical-sizing: auto;
+    font-weight: 100 900;
+    font-style: normal;
+    font-variation-settings:
+      "wdth" 100;
+  }
+
+/* Big Styling (Containers, Body, etc.) */
+
+#app_container{
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(30deg, #4b6cb7 0%, #182848 100%);}
+
+body{
+    margin: 0px;
+    font-family: Roboto;
+}
+
+/* Card Styling */
+
+#song_card{
+    z-index: 100;
+    box-shadow: 0px 35px 13px -32px rgba(0, 0, 0, 0.75);
+}
+
+#next_song_card{
+    z-index: 50;
+    width: 80vw;
+    height: 50vh;
+    top: 22%;
+    box-shadow: 0px 35px 13px -32px rgba(0, 0, 0, 0.75);
+}
+
+#last_song_card{
+    z-index: 1;
+    width: 70vw;
+    height: 45vh;
+    top: 28%;
+}
+
+.card {
+    position: absolute;
+    width: 90vw;
+    height: 55vh;
+    background-color: #14191d;
+    left: 0px;
+    right: 0px;
+    top: 15%;
+    margin: auto;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.album {
+    width: 100%;
+    position: relative;
+    height: 80%;
+    object-fit: cover;
+}
+
+.song_info_container{
+    position: relative;
+    height: 20%;
+}
+
+.song_info {
+    color: white;
+    position: absolute;
+    top: 10px;
+    height: fit-content;
+    left: 10px;
+    font-size: 2.5vh;
+}
+
+/* Modifier Classes */
+
+.bold_title{
+    font-weight: 700 !important;
+}

@@ -7,8 +7,34 @@
     <link href="style.css" rel="stylesheet" type="text/css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="script.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
   </head>
   <body>
-    hi kat
+    <div id="app_container">
+        <div id="song_card" class="card">
+            <img src="assets/img/Kid_Cudi.png" id="album_art" class="album">
+            <div class="song_info_container">
+                <div class="song_info">
+                    <span class="bold_title">Man On The Moon</span><br>
+                    Kid Cudi
+                </div>
+            </div>
+        </div>
+        <div id="next_song_card" class="card">
+            <img src="assets/img/Evanescence.png" id="next_album_art" class="album">
+            <div class="song_info_container">
+                <div class="song_info">
+                    <span class="bold_title">Bring Me To Life</span><br>
+                    <span class="subtitle">Evanescence</span>
+                </div>
+            </div>
+        </div>
+        <div id="last_song_card" class="card">
+        </div>
+    </div>
   </body>
 </html>
