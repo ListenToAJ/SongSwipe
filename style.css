@@ -57,6 +57,7 @@ body{
     font-family: 'DM Serif Display';
     overflow: hidden;
     background: rgb(32,32,32);
+    padding-top: env(safe-area-inset-top);
 }
 
 /* Header Styling */
@@ -115,6 +116,15 @@ body{
     margin: auto;
     border-radius: 15px;
     overflow: hidden;
+    /* transition: transform 0.5s ease; */
+}
+
+.card.swipe-left {
+    transform: translateX(-450px) rotate(-20deg);
+  }
+  
+.card.swipe-right {
+transform: translateX(200px) rotate(20deg);
 }
 
 .album {

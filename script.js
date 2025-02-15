@@ -9,7 +9,7 @@ $(document).ready(function () {
     let tracking = false;
     let startX, startY = false;
     let last_update_time = 0;
-    const DISTANCE_TO_SWIPE = window.innerWidth / 4;
+    const DISTANCE_TO_SWIPE = window.innerWidth / 2;
     let ANGLE_OF_ALLOWANCE = 60;    // The angle width directly left and right that is allowed for swiping
     
     function computeSwipeDetails(event) {
@@ -25,11 +25,21 @@ $(document).ready(function () {
         }
         const distance = Math.sqrt(sumOfSquares);
         const angle = getAngle(swipe_start, swipe_current)
+        let direction
     
+        if (angle < 180 + ANGLE_OF_ALLOWANCE / 2 && angle > 180 - ANGLE_OF_ALLOWANCE / 2){
+            direction = -1
+        } else if (angle > 360 - ANGLE_OF_ALLOWANCE / 2 || angle < 0 + ANGLE_OF_ALLOWANCE / 2){
+            direction = 1
+        } else{
+            direction = 0
+        }
+
         // Return the result: distance, and angle
         return {
             distance: distance, // Distance with sign based on direction
-            angle: angle                 // Angle in degrees (0 to 360 range)
+            angle: angle,                 // Angle in degrees (0 to 360 range)
+            direction: direction
         };
     }
     
@@ -64,31 +74,27 @@ $(document).ready(function () {
     // While finger is moving..
     $("#song_card").on("touchmove", function (event) {
         if (tracking) {
-            finger_travel = computeSwipeDetails(event);
-            const now = Date.now();
-            // Logging swipe percentage for testing
-            if (now - last_update_time >= 100) {
-                console.clear()
-                console.log(Math.floor(finger_travel.distance / DISTANCE_TO_SWIPE * 100) + "%");
-                last_update_time = now;
-            }
+            swipe_details = computeSwipeDetails(event);
+            // swipe_direction = validateAngle(finger_travel.angle)
 
-            // Swipe left detection (distance and angle)
-            if (finger_travel.distance > DISTANCE_TO_SWIPE) {
-                if (finger_travel.angle < 180 + ANGLE_OF_ALLOWANCE / 2
-                    && finger_travel.angle > 180 - ANGLE_OF_ALLOWANCE / 2
-                ) {
-                    console.log("Swiped left!")
-                    tracking = false
-                    return
-                }
+            if(swipe_details.direction == -1 || swipe_details.direction == 1){
+                swipe_percentage = swipe_details.distance / DISTANCE_TO_SWIPE
 
-                // Swipe left detection (distance and angle)
-                if (finger_travel.angle > 360 - ANGLE_OF_ALLOWANCE / 2
-                    || finger_travel.angle < 0 + ANGLE_OF_ALLOWANCE / 2
-                ) {
-                    console.log("Swiped right!")
+                // Calculate the translateX distance based on the value
+                var translateX = (swipe_percentage * swipe_details.direction * 450)
+                var rotateDeg = (swipe_percentage * swipe_details.direction * 20)
+                
+                // Apply the calculated transform   
+                $("#song_card").css('transform', 'translateX(' + translateX + 'px) rotate(' + rotateDeg + 'deg)');
+                $("#song_card").one('transitionend', function() {                    
+                    // Remove the transition after the animation completes to allow future animations to use their own timing
+                    $(this).css('transition', ''); // Remove the transition property
+                });
+
+                if(swipe_details.distance > DISTANCE_TO_SWIPE){
+                    console.log(`Swiped ${swipe_details.direction === -1 ? "Left" : swipe_details.direction === 1 ? "Right" : "Unknown"}!`)
                     tracking = false
+                    $("#song_card").hide();
                     return
                 }
             }
@@ -97,5 +103,9 @@ $(document).ready(function () {
 
     $("#song_card").on("touchend", function (event) {
         tracking = false; // Stop tracking when finger is lifted
+        $("#song_card").css({
+            'transition': 'transform 0.2s', // Set the transition duration to 2 seconds
+            'transform': 'translateX(0px) rotate(0deg)' // Reset to original position and rotation
+        });
     });
 });
