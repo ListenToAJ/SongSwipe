@@ -9,7 +9,8 @@ $(document).ready(function () {
     let tracking = false;
     let startX, startY = false;
     let last_update_time = 0;
-    const DISTANCE_TO_SWIPE = window.innerWidth / 2;
+    const SWIPE_SENSITIVITY = window.innerWidth / 1;
+    const DISTANCE_TO_SWIPE = window.innerWidth / 2.5;
     let ANGLE_OF_ALLOWANCE = 90;    // The angle width directly left and right that is allowed for swiping
     
     function computeSwipeDetails(event) {
@@ -71,14 +72,17 @@ $(document).ready(function () {
         startY = touch.clientY;
     });
 
+    swiped = false
+
     // While finger is moving..
     $("#song_card").on("touchmove", function (event) {
+
         if (tracking) {
             swipe_details = computeSwipeDetails(event);
             // swipe_direction = validateAngle(finger_travel.angle)
 
             if(swipe_details.direction == -1 || swipe_details.direction == 1){
-                swipe_percentage = swipe_details.distance / DISTANCE_TO_SWIPE
+                swipe_percentage = swipe_details.distance / SWIPE_SENSITIVITY
 
                 // Calculate the translateX distance based on the value
                 var translateX = (swipe_percentage * swipe_details.direction * 450)
@@ -89,24 +93,47 @@ $(document).ready(function () {
                 card.style.transform = `translateX(${translateX}px) rotate(${rotateDeg}deg)`;
                     $("#song_card").one('transitionend', function() {                    
                     // Remove the transition after the animation completes to allow future animations to use their own timing
-                    $(this).css('transition', ''); // Remove the transition property
+                    $(this).css('transition', ''); // Remove the transition prope
                 });
 
                 if(swipe_details.distance > DISTANCE_TO_SWIPE){
                     console.log(`Swiped ${swipe_details.direction === -1 ? "Left" : swipe_details.direction === 1 ? "Right" : "Unknown"}!`)
                     tracking = false
-                    $("#song_card").hide();
+                    swiped = true
+                    
+                    // Add transition for smooth animation
+                    $("#song_card").css({
+                        'transition': 'transform 0.3s ease-out'
+                    });
+                    
+                    // Calculate final position based on swipe direction (off-screen)
+                    const finalX = swipe_details.direction * window.innerWidth * 1.5;
+                    const finalRotation = swipe_details.direction * 30;
+                    
+                    // Apply the final transform to animate the card off-screen
+                    $("#song_card").css({
+                        'transform': `translateX(${finalX}px) rotate(${finalRotation}deg)`
+                    });
+                    
+                    // Hide the card only after the animation completes
+                    $("#song_card").one('transitionend', function() {
+                        $(this).hide();
+                    });
+                    
                     return
                 }
+                
             }
         }
     });
 
     $("#song_card").on("touchend", function (event) {
-        tracking = false; // Stop tracking when finger is lifted
-        $("#song_card").css({
-            'transition': 'transform 0.2s', // Set the transition duration to 2 seconds
-            'transform': 'translateX(0px) rotate(0deg)' // Reset to original position and rotation
-        });
+        if(swiped == false){
+            tracking = false; // Stop tracking when finger is lifted
+            $("#song_card").css({
+                'transition': 'transform 0.2s', // Set the transition duration to 2 seconds
+                'transform': 'translateX(0px) rotate(0deg)' // Reset to original position and rotation
+            });
+        }
     });
 });
