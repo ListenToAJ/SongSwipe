@@ -10,7 +10,7 @@ $(document).ready(function () {
     let startX, startY = false;
     let last_update_time = 0;
     const DISTANCE_TO_SWIPE = window.innerWidth / 2;
-    let ANGLE_OF_ALLOWANCE = 60;    // The angle width directly left and right that is allowed for swiping
+    let ANGLE_OF_ALLOWANCE = 90;    // The angle width directly left and right that is allowed for swiping
     
     function computeSwipeDetails(event) {
         let touch = event.touches[0]; // Get first touch point
@@ -85,8 +85,9 @@ $(document).ready(function () {
                 var rotateDeg = (swipe_percentage * swipe_details.direction * 20)
                 
                 // Apply the calculated transform   
-                $("#song_card").css('transform', 'translateX(' + translateX + 'px) rotate(' + rotateDeg + 'deg)');
-                $("#song_card").one('transitionend', function() {                    
+                const card = document.getElementById("song_card");
+                card.style.transform = `translateX(${translateX}px) rotate(${rotateDeg}deg)`;
+                    $("#song_card").one('transitionend', function() {                    
                     // Remove the transition after the animation completes to allow future animations to use their own timing
                     $(this).css('transition', ''); // Remove the transition property
                 });
