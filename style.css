@@ -85,35 +85,39 @@ body{
 }
 
 /* Card Styling */
-
-#song_card{
+.song_card{
     z-index: 100;
+    width: 90vw;
+    height: 55vh;
+    /* color: #FAF9F6; */
+    top: var(--card_top_spacing);
     box-shadow: 0px 35px 13px -32px rgba(0, 0, 0, 0.75);
 }
 
-#next_song_card{
+.next_song_card{
     z-index: 50;
     width: 80vw;
     height: 50vh;
-    top: calc(var(--card_top_spacing) + 50px);
+    /* color: #FAF9F6; */
+    top: calc(var(--card_top_spacing) + 1vh + 5vh);
     box-shadow: 0px 35px 13px -32px rgba(0, 0, 0, 0.75);
 }
 
-#last_song_card{
+.last_song_card{
     z-index: 1;
     width: 70vw;
     height: 45vh;
-    top: calc(var(--card_top_spacing) + 100px);
+    top: calc(var(--card_top_spacing) + 2vh + 10vh);
+    /* color: #14191d; */
+    transition: all 1s ease-in-out;
 }
 
 .card {
     position: absolute;
-    width: 90vw;
-    height: 55vh;
     background-color: #14191d;;
+    color: #FAF9F6;
     left: 0px;
     right: 0px;
-    top: var(--card_top_spacing);
     margin: auto;
     border-radius: 15px;
     overflow: hidden;
@@ -141,7 +145,7 @@ transform: translateX(200px) rotate(20deg);
 }
 
 .song_info {
-    color: #FAF9F6;
+    color: inherit;
     position: absolute;
     top: 10px;
     height: fit-content;

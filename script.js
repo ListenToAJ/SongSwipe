@@ -1,23 +1,66 @@
-$(document).ready(function () {
+$(document).ready(async function () {
+    //! TEMPORARY TESTING SONG LOADING
+    try {
+        const response = await fetch("songs.json");
+        const data = await response.json();
+        songs = data.songs;  // Assuming the JSON has a "songs" key
+    } catch (error) {
+        console.error("Error fetching the JSON file:", error);
+    }
+
+    /**
+     * Updates the song information on a specific card element.
+     * 
+     * @param {number} song_index - The index of the song in the `songs` array.
+     * @param {string} card_id - The ID of the card to update (e.g., "song_card", "next_song_card", "last_song_card").
+     */
+    function updateSongCard(song_index, card_id) {
+        const card = $("#" + card_id);
+        // Update div info
+        card.find(".song_info .bold_title").text(songs[song_index].name);
+        card.find(".song_info .subtitle").text(songs[song_index].artist);
+        card.find(".album").attr("src", songs[song_index].album_art);
+        card.find(".song_num").text(song_index);
+    }
+
+    songIndex = 0;
+    updateSongCard(songIndex, "song_card");
+    songIndex += 1;
+    updateSongCard(songIndex, "next_song_card");
+    songIndex += 1;
+    updateSongCard(songIndex, "last_song_card");
+
+
     //! Listener for reloading app for testing on mobile (REMOVE LATER)
     $("#playlist_title").on("click touchstart", function (e) {
         alert("Reloading...");
         location.reload();
     });
-    
+
+
     //! Swiping action listener and logic
+    const SWIPE_SENSITIVITY = window.innerWidth / 1;    // Animation sensitivity
+    const DISTANCE_TO_SWIPE = window.innerWidth / 3;    // Distance it takes to fully swipe either left or right
+    const ANGLE_OF_ALLOWANCE = 90;    // The angle width directly left and right that is allowed for swiping
+
     let tracking = false;
     let startX, startY = false;
-    let last_update_time = 0;
-    const SWIPE_SENSITIVITY = window.innerWidth / 1;
-    const DISTANCE_TO_SWIPE = window.innerWidth / 2.5;
-    let ANGLE_OF_ALLOWANCE = 90;    // The angle width directly left and right that is allowed for swiping
-    
+    let completed_swipe = false;
+
+    /**
+     * Computes the swipe details, including distance, angle, and direction.
+     * 
+     * @param {Object} event - The touch event.
+     * @returns {Object} - An object containing the distance, angle, and direction of the swipe.
+     *   - distance: The swipe distance.
+     *   - angle: The angle of the swipe in degrees (0 to 360).
+     *   - direction: The direction of the swipe (-1 for left, 1 for right, 0 for no swipe).
+     */
     function computeSwipeDetails(event) {
         let touch = event.touches[0]; // Get first touch point
-        swipe_start = [startX, startY]
-        swipe_current = [touch.clientX, touch.clientY]
-    
+        swipe_start = [startX, startY];
+        swipe_current = [touch.clientX, touch.clientY];
+
         // Compute the distance (Euclidean distance)
         let sumOfSquares = 0;
         for (let i = 0; i < swipe_start.length; i++) {
@@ -25,114 +68,150 @@ $(document).ready(function () {
             sumOfSquares += diff * diff;
         }
         const distance = Math.sqrt(sumOfSquares);
-        const angle = getAngle(swipe_start, swipe_current)
-        let direction
-    
-        if (angle < 180 + ANGLE_OF_ALLOWANCE / 2 && angle > 180 - ANGLE_OF_ALLOWANCE / 2){
-            direction = -1
-        } else if (angle > 360 - ANGLE_OF_ALLOWANCE / 2 || angle < 0 + ANGLE_OF_ALLOWANCE / 2){
-            direction = 1
-        } else{
-            direction = 0
+        const angle = getAngle(swipe_start, swipe_current);
+        let direction;
+
+        if (angle < 180 + ANGLE_OF_ALLOWANCE / 2 && angle > 180 - ANGLE_OF_ALLOWANCE / 2) {
+            direction = -1;
+        } else if (angle > 360 - ANGLE_OF_ALLOWANCE / 2 || angle < 0 + ANGLE_OF_ALLOWANCE / 2) {
+            direction = 1;
+        } else {
+            direction = 0;
         }
 
         // Return the result: distance, and angle
         return {
             distance: distance, // Distance with sign based on direction
-            angle: angle,                 // Angle in degrees (0 to 360 range)
-            direction: direction
+            angle: angle,       // Angle in degrees (0 to 360 range)
+            direction: direction // Direction is either -1 for left swipe or 1 for right swipe
         };
     }
-    
+
+    /**
+     * Calculates the angle between two points in a 2D plane.
+     * 
+     * @param {Array} center - The starting point [x, y].
+     * @param {Array} point - The destination point [x, y].
+     * @returns {number} - The angle between the points in degrees (0 to 360).
+     */
     function getAngle(center, point) {
-        // Calculate the differences
         const dx = point[0] - center[0];
         const dy = point[1] - center[1];
-    
-        // Get the angle in radians from the positive x-axis
+
         let angleRad = Math.atan2(dy, dx);
-    
-        // Convert to degrees
         let angleDeg = angleRad * (180 / Math.PI);
-    
+
         // Normalize to 0–360° (if negative, add 360)
         if (angleDeg < 0) {
             angleDeg += 360;
         }
-    
+
         return angleDeg;
     }
-    
-    // Start tap on card by recording where finger is placed
-    $("#song_card").on("touchstart", function (event) {
+
+    // When finger is pressed on card...
+    $("#app_container").on("touchstart", "#song_card", function (event) {
         tracking = true; // Start tracking finger travel distance
-        
+
         let touch = event.touches[0]; // Get first touch point
         startX = touch.clientX;
         startY = touch.clientY;
     });
 
-    swiped = false
-
-    // While finger is moving..
-    $("#song_card").on("touchmove", function (event) {
-
+    // While finger is moving...
+    $("#app_container").on("touchmove", "#song_card", function (event) {
         if (tracking) {
             swipe_details = computeSwipeDetails(event);
-            // swipe_direction = validateAngle(finger_travel.angle)
+            
+            // If swipe has been determined as valid and within angle of allowance
+            if (swipe_details.direction == -1 || swipe_details.direction == 1) {
+                swipe_percentage = swipe_details.distance / SWIPE_SENSITIVITY;
 
-            if(swipe_details.direction == -1 || swipe_details.direction == 1){
-                swipe_percentage = swipe_details.distance / SWIPE_SENSITIVITY
+                // Convert swipe status into animation details
+                var translateX = (swipe_percentage * swipe_details.direction * 450);
+                var rotateDeg = (swipe_percentage * swipe_details.direction * 20);
 
-                // Calculate the translateX distance based on the value
-                var translateX = (swipe_percentage * swipe_details.direction * 450)
-                var rotateDeg = (swipe_percentage * swipe_details.direction * 20)
-                
-                // Apply the calculated transform   
+                // Animate the swipe at whatever state its at
                 const card = document.getElementById("song_card");
                 card.style.transform = `translateX(${translateX}px) rotate(${rotateDeg}deg)`;
-                    $("#song_card").one('transitionend', function() {                    
-                    // Remove the transition after the animation completes to allow future animations to use their own timing
-                    $(this).css('transition', ''); // Remove the transition prope
-                });
 
-                if(swipe_details.distance > DISTANCE_TO_SWIPE){
-                    console.log(`Swiped ${swipe_details.direction === -1 ? "Left" : swipe_details.direction === 1 ? "Right" : "Unknown"}!`)
-                    tracking = false
-                    swiped = true
-                    
+                // If the song has been completed_swipe enough to declare it left or right swipe
+                if (swipe_details.distance > DISTANCE_TO_SWIPE) {
+                    console.log(`Swiped ${swipe_details.direction === -1 ? "Left" : swipe_details.direction === 1 ? "Right" : "Unknown"}!`);
+                    tracking = false;
+                    completed_swipe = true;
+
                     // Add transition for smooth animation
                     $("#song_card").css({
                         'transition': 'transform 0.3s ease-out'
                     });
-                    
-                    // Calculate final position based on swipe direction (off-screen)
+
+                    // Get finished animation details
                     const finalX = swipe_details.direction * window.innerWidth * 1.5;
                     const finalRotation = swipe_details.direction * 30;
-                    
+
                     // Apply the final transform to animate the card off-screen
                     $("#song_card").css({
                         'transform': `translateX(${finalX}px) rotate(${finalRotation}deg)`
                     });
-                    
-                    // Hide the card only after the animation completes
-                    $("#song_card").one('transitionend', function() {
-                        $(this).hide();
+
+                    // Once front song is fully out of frame
+                    $("#song_card").one('transitionend', function () {
+                        // Variables for readability
+                        let $next = $("#next_song_card");
+                        let $current = $("#song_card");
+
+                        // Clone final song card upward
+                        let $last = $("#last_song_card").clone();
+                        $next.after($last);
+
+                        // Ensure the transition is applied to all involved elements before class swap
+                        $next.css("transition", "all 0.05s ease-in-out");
+                        $last.css("transition", "all 0.1s ease-in-out");
+
+                        // Add a small delay to ensure the $last element is rendered properly
+                        setTimeout(() => {
+                            // Swap classes and apply transitions (Moving both cards upward to fill space left by swipe)
+                            $next.addClass("song_card").removeClass("next_song_card");
+                            $last.addClass("next_song_card").removeClass("last_song_card");
+
+                            // Wait for the transition to finish, then remove transition property
+                            $last.one("transitionend", function () {
+                                // Remove all transition properties to start with clean slate for future swipes
+                                $next.css("transition", ""); 
+                                $current.css("transition", "");
+                                $last.css("transition", "");
+                                $last.find(".song_info_container").show();
+
+                                // Swap IDs
+                                $current.remove();  // Delete swiped card element
+                                $next.attr("id", "song_card");  // Move other two upward
+                                $last.attr("id", "next_song_card");
+
+                                // Temporary population of final card
+                                //! IMPORTANT : THIS IS WHERE NEW SONGS NEED TO BE PLACED VIA API TO BE ADDED TO SWIPING ROTATION ! ! ! ! ! ! 
+                                songIndex = (songIndex + 1) % 6;
+                                updateSongCard(songIndex, "last_song_card");
+                                completed_swipe = false;
+                            });
+                        }, 10); // Delay the class swapping to allow for smooth transition
                     });
-                    
-                    return
+                    return;
                 }
-                
             }
         }
     });
 
-    $("#song_card").on("touchend", function (event) {
-        if(swiped == false){
+    // When finger is lifted...
+    $("#app_container").on("touchend", "#song_card", function (event) {
+        // If swipe has not been finished
+        if (completed_swipe == false) {
             tracking = false; // Stop tracking when finger is lifted
+
+            // Reset to original position and rotation
             $("#song_card").css({
-                'transition': 'transform 0.2s', // Set the transition duration to 2 seconds
-                'transform': 'translateX(0px) rotate(0deg)' // Reset to original position and rotation
+                'transition': 'transform 0.2s',             
+                'transform': 'translateX(0px) rotate(0deg)' 
             });
         }
     });
