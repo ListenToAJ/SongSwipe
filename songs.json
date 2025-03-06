@@ -1,0 +1,34 @@
+{
+    "songs": [
+        {
+            "name": "Man On The Moon",
+            "artist": "Kid Cudi",
+            "album_art": "assets/img/album/Man_On_The_Moon.png"
+        },
+        {
+            "name": "Bring Me To Life",
+            "artist": "Evanescence",
+            "album_art": "assets/img/album/Fallen.png"
+        },
+        {
+            "name": "She",
+            "artist": "Tyler, The Creator",
+            "album_art": "assets/img/album/goblin.png"
+        },
+        {
+            "name": "PERRO NEGRO",
+            "artist": "Bad Bunny",
+            "album_art": "assets/img/album/nadie_sabe_lo_que_va_a_pasar_manana.jpeg"
+        },
+        {
+            "name": "Free Mind",
+            "artist": "Tems",
+            "album_art": "assets/img/album/for_broken_ears.png"
+        },
+        {
+            "name": "No Pole",
+            "artist": "Don Toliver",
+            "album_art": "assets/img/album/love_sick.png"
+        }
+    ]
+}

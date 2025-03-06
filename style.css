@@ -9,6 +9,31 @@
       "wdth" 100;
   }
 
+  .anton-regular {
+    font-family: "Anton", serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+  
+  .dm-serif-display-regular {
+    font-family: "DM Serif Display", serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+  
+  .dm-serif-display-regular-italic {
+    font-family: "DM Serif Display", serif;
+    font-weight: 400;
+    font-style: italic;
+  }
+  
+  @font-face {
+    font-family: "Gotham";
+    src: url("assets/fonts/Gotham-Black.otf");
+    font-weight: 700;
+    font-size: normal;
+  }
+
   :root{
     --card_top_spacing: 15%;
     touch-action: pan-x pan-y;
@@ -19,15 +44,21 @@
 #app_container{
     width: 100vw;
     height: 100vh;
-    background: rgb(32,32,32);
-    background: linear-gradient(209deg, rgba(32,32,32,1) 38%, rgba(34,74,48,1) 57%, rgba(45,132,76,1) 76%, rgba(59,202,109,1) 95%, rgba(69,252,133,1) 100%);
+    /* background: rgb(32,32,32);
+    background: linear-gradient(209deg, rgba(32,32,32,1) 38%, rgba(34,74,48,1) 57%, rgba(45,132,76,1) 76%, rgba(59,202,109,1) 95%, rgba(69,252,133,1) 100%); */
 }
 
 body{
     margin: 0px;
-    font-family: Roboto;
+    font-family: 'DM Serif Display';
     overflow: hidden;
     background: rgb(32,32,32);
+    /* padding-top: env(safe-area-inset-top); */
+
+    background-image: url('assets/img/background.jpg'); /* Replace with your image URL */
+    background-size: cover;  /* Ensures the image covers the whole screen */
+    background-position: center; /* Centers the image */
+    background-repeat: no-repeat; /* Prevents tiling */
 }
 
 /* Header Styling */
@@ -39,7 +70,7 @@ body{
 
 #playlist_title{
     color: white;
-    font-size: 2.5vh;
+    font-size: 3vh;
     text-align: center;
     top: 0px;
     bottom: 0px;
@@ -49,41 +80,56 @@ body{
     width: fit-content;
     left: 0px;
     right: 0px;
+
+    font-family: 'DM Serif Display';
 }
 
 /* Card Styling */
-
-#song_card{
+.song_card{
     z-index: 100;
+    width: 90vw;
+    height: 55vh;
+    /* color: #FAF9F6; */
+    top: var(--card_top_spacing);
     box-shadow: 0px 35px 13px -32px rgba(0, 0, 0, 0.75);
 }
 
-#next_song_card{
+.next_song_card{
     z-index: 50;
     width: 80vw;
     height: 50vh;
-    top: calc(var(--card_top_spacing) + 7%);
+    /* color: #FAF9F6; */
+    top: calc(var(--card_top_spacing) + 1vh + 5vh);
     box-shadow: 0px 35px 13px -32px rgba(0, 0, 0, 0.75);
 }
 
-#last_song_card{
+.last_song_card{
     z-index: 1;
     width: 70vw;
     height: 45vh;
-    top: calc(var(--card_top_spacing) + 13%);
+    top: calc(var(--card_top_spacing) + 2vh + 10vh);
+    /* color: #14191d; */
+    transition: all 1s ease-in-out;
 }
 
 .card {
     position: absolute;
-    width: 90vw;
-    height: 55vh;
-    background-color: #14191d;
+    background-color: #14191d;;
+    color: #FAF9F6;
     left: 0px;
     right: 0px;
-    top: var(--card_top_spacing);
     margin: auto;
     border-radius: 15px;
     overflow: hidden;
+    /* transition: transform 0.5s ease; */
+}
+
+.card.swipe-left {
+    transform: translateX(-450px) rotate(-20deg);
+  }
+  
+.card.swipe-right {
+transform: translateX(200px) rotate(20deg);
 }
 
 .album {
@@ -99,14 +145,33 @@ body{
 }
 
 .song_info {
-    color: white;
+    color: inherit;
     position: absolute;
     top: 10px;
     height: fit-content;
     left: 10px;
-    font-size: 2.5vh;
+    font-size: 2.7vh;
+    letter-spacing: -0.01em;
+    font-family: 'Gotham' !important;
+    /* font-family: "Marlin Soft SQ"; */
+    font-weight: 700;
 }
 
+.song_num {
+    color: white;
+    position: absolute;
+    top: 20px;
+    height: fit-content;
+    right: 29px;
+    font-size: 4.5vh;
+    font-family: 'Gotham';
+    opacity: 0.3;
+    display: inline-block;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(0, 0, 0, 1) 220%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
 /* Modifier Classes */
 
 .bold_title{

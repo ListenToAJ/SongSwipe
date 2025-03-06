@@ -11,7 +11,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Serif+Display:ital@0;1&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
     <!-- Enable standalone mode (full-screen) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -30,25 +30,38 @@
                 <span class="bold_title">Liked Songs</span>
             </div>
         </div>
-        <div id="song_card" class="card">
-            <img src="assets/img/Kid_Cudi.png" id="album_art" class="album">
+        <div id="song_card" class="card song_card">
+            <img id="album_art" class="album">
             <div class="song_info_container">
                 <div class="song_info">
-                    <span class="bold_title">Man On The Moon</span><br>
-                    <span class="subtitle">Kid Cudi</span>          
+                    <span class="bold_title"></span><br>
+                    <span class="subtitle"></span>  
+                </div>
+                <div class="song_num">
                 </div>
             </div>
         </div>
-        <div id="next_song_card" class="card">
-            <img src="assets/img/Evanescence.png" id="next_album_art" class="album">
+        <div id="next_song_card" class="card next_song_card">
+            <img id="next_album_art" class="album">
             <div class="song_info_container">
                 <div class="song_info">
-                    <span class="bold_title">Bring Me To Life</span><br>
-                    <span class="subtitle">Evanescence</span>
+                    <span class="bold_title"></span><br>
+                    <span class="subtitle"></span>
+                </div>
+                <div class="song_num">
                 </div>
             </div>
         </div>
-        <div id="last_song_card" class="card">
+        <div id="last_song_card" class="card last_song_card">
+            <img id="last_album_art" class="album">
+            <div class="song_info_container" style="display: none">
+                <div class="song_info">
+                    <span class="bold_title"></span><br>
+                    <span class="subtitle"></span>
+                </div>
+                <div class="song_num">
+                </div>
+            </div>
         </div>
     </div>
   </body>
