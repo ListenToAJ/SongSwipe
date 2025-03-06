@@ -1,10 +1,23 @@
 {
+  "name": "songswipe",
+  "version": "0.0.1",
+  "description": "",
+  "scripts": {
+    "start": "./node_modules/.bin/netlify-lambda serve src",
+    "build": "./node_modules/.bin/netlify-lambda build src"
+  },
   "dependencies": {
+    "@netlify/functions": "^3.0.1",
     "@spotify/web-api-ts-sdk": "^1.2.0",
-    "dotenv": "^16.4.7"
+    "@types/express": "^5.0.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "netlify-lambda": "^2.0.16",
+    "serverless-http": "^3.2.0",
+    "typescript": "^5.8.2"
   },
   "devDependencies": {
-    "@types/node": "^22.13.1",
+    "@types/node": "^22.13.9",
     "tsx": "^4.19.2"
   }
 }
