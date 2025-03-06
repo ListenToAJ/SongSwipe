@@ -2,6 +2,8 @@ import express, { Router } from 'express'
 import serverless from 'serverless-http'
 import { config } from 'dotenv';
 import { generateRandomString } from './util';
+import { fetchUserPlaylists } from './spotify-interactions';
+import cors from 'cors';
 
 // TODO: document routes
 
@@ -14,6 +16,8 @@ const redirect_home = process.env.REDIRECT_URI_HOME ?? "";
 
 const app = express();
 const router = Router();
+
+app.use(cors());
 
 router.get('/auth/login', async (req, res) => {
 
@@ -51,6 +55,12 @@ router.get('/auth/callback', async (req, res) => {
     const data = await response.json();
     
     res.redirect(redirect_home + `?data=${JSON.stringify(data)}`);
+});
+
+router.get('/playlists', async (req, res) => {
+    // TODO: this needs a lot of work lol for a simple test
+    const data = await fetchUserPlaylists(req.headers.authorization ?? "");
+    res.json(data);
 });
 
 app.use("/.netlify/functions/api", router);

@@ -10,6 +10,7 @@
     "@netlify/functions": "^3.0.1",
     "@spotify/web-api-ts-sdk": "^1.2.0",
     "@types/express": "^5.0.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "netlify-lambda": "^2.0.16",
@@ -17,6 +18,7 @@
     "typescript": "^5.8.2"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
     "@types/node": "^22.13.9",
     "tsx": "^4.19.2"
   }
