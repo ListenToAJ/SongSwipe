@@ -3,25 +3,24 @@ import serverless from 'serverless-http'
 import { config } from 'dotenv';
 import { generateRandomString } from './util';
 
+// TODO: document routes
 
 config(); // Load .env with Spotify credentials 
 // Set constants for env secrets
 const spotify_client_id = process.env.SPOTIFY_CLIENT_ID ?? "";
 const spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET ?? "";
-const redirect_uri = process.env.REDIRECT_URI ?? "";
+const redirect_uri = process.env.REDIRECT_URI_AUTH ?? "";
+const redirect_home = process.env.REDIRECT_URI_HOME ?? "";
 
 const app = express();
 const router = Router();
 
-router.get('/', async (req, res) => {
-    res.send("Hello World");
-});
-
 router.get('/auth/login', async (req, res) => {
 
-    var scope = ""; // TODO: LOOK INTO SCOPES
+    // TODO: will need to be altered
+    const scope = "playlist-read-private"
 
-    var state = generateRandomString(16);
+    const state = generateRandomString(16);
 
     var auth_query_parameters = new URLSearchParams({
         response_type: "code",
@@ -30,12 +29,28 @@ router.get('/auth/login', async (req, res) => {
         redirect_uri: redirect_uri,
         state: state,
     });
-
+    
     res.redirect('https://accounts.spotify.com/authorize?' + auth_query_parameters.toString());
 });
 
-router.get('/auth/callback', (req, res) => {
+router.get('/auth/callback', async (req, res) => {
+    const code = req.query.code?.toString() ?? "";
 
+    const headers = new Headers();
+    headers.set('Content-Type', 'application/x-www-form-urlencoded');
+    headers.set('Authorization', 'Basic ' + (Buffer.from(spotify_client_id + ':' + spotify_client_secret).toString('base64')));
+
+    const request = new Request('https://accounts.spotify.com/api/token', {
+        method: 'POST',
+        headers: headers,
+        body: `grant_type=authorization_code&redirect_uri=${redirect_uri}&code=${code}`,
+    });
+
+    // TODO: ADD ERROR HANDLING
+    const response = await fetch(request);
+    const data = await response.json();
+    
+    res.redirect(redirect_home + `?data=${JSON.stringify(data)}`);
 });
 
 app.use("/.netlify/functions/api", router);
