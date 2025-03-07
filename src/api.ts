@@ -2,7 +2,7 @@ import express, { Router } from 'express'
 import serverless from 'serverless-http'
 import { config } from 'dotenv';
 import { generateRandomString } from './util';
-import { fetchUserPlaylists } from './spotify-interactions';
+import { fetchUserInfo, fetchUserPlaylists } from './spotify-interactions';
 import cors from 'cors';
 
 // TODO: document routes
@@ -22,7 +22,9 @@ app.use(cors());
 router.get('/auth/login', async (req, res) => {
 
     // TODO: will need to be altered
-    const scope = "playlist-read-private"
+    const scope = 'playlist-read-private \
+                   user-read-email \
+                   user-read-private';
 
     const state = generateRandomString(16);
 
@@ -62,6 +64,12 @@ router.get('/playlists', async (req, res) => {
     const data = await fetchUserPlaylists(req.headers.authorization ?? "");
     res.json(data);
 });
+
+router.get('/user', async (req, res) => {
+    // TODO: same as playlist route
+    const data = await fetchUserInfo(req.headers.authorization ?? "");
+    res.json(data);
+})
 
 app.use("/.netlify/functions/api", router);
 
