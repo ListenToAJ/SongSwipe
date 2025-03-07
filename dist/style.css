@@ -1,44 +1,58 @@
-/* Non-Styling Blocks */
 
+/* Non-Styling Blocks */
 .roboto-gf {
     font-family: "Roboto", serif;
     font-optical-sizing: auto;
     font-weight: 100 900;
     font-style: normal;
     font-variation-settings:
-      "wdth" 100;
-  }
+    "wdth" 100;
+}
 
-  .anton-regular {
+.anton-regular {
     font-family: "Anton", serif;
     font-weight: 400;
     font-style: normal;
-  }
-  
-  .dm-serif-display-regular {
+}
+
+.dm-serif-display-regular {
     font-family: "DM Serif Display", serif;
     font-weight: 400;
     font-style: normal;
-  }
-  
-  .dm-serif-display-regular-italic {
+}
+
+.dm-serif-display-regular-italic {
     font-family: "DM Serif Display", serif;
     font-weight: 400;
     font-style: italic;
-  }
-  
-  @font-face {
+}
+
+@font-face {
     font-family: "Gotham";
     src: url("assets/fonts/Gotham-Black.otf");
     font-weight: 700;
     font-size: normal;
-  }
+}
 
-  :root{
+:root{
     --card_top_spacing: 15%;
+    --playlist_card_size: 11vw;
+    --playlist_img_size: 10vw;
+    --playlist_text_width: 12vw;
+    --playlist_user_icon_size: 3vw;
     touch-action: pan-x pan-y;
     height: 100% 
-  }
+}
+
+/* Mobile Media Query */
+@media (max-width: 500px) {
+    :root {
+        --playlist_card_size: 50vw;
+        --playlist_img_size: 42vw;
+        --playlist_text_width: 50vw;
+        --playlist_user_icon_size: 10vw;
+    }
+}
 /* Big Styling (Containers, Body, etc.) */
 
 #app_container{
@@ -185,8 +199,8 @@ transform: translateX(200px) rotate(20deg);
 
 /* Playlists Page Styling */
 #user_icon{
-    width: 3vw;
-    height: 3vw;
+    width: var(--playlist_user_icon_size);
+    height: var(--playlist_user_icon_size);
     border-radius: 2vw;
 }
 
@@ -228,8 +242,8 @@ transform: translateX(200px) rotate(20deg);
 }
 
 .playlist_card{
-    width: 11vw;
-    height: 11vw;
+    width: var(--playlist_card_size);
+    height: var(--playlist_card_size);
     padding: 2vw;
     background-color: #14191d;;
     display: flex;
@@ -250,13 +264,13 @@ transform: translateX(200px) rotate(20deg);
 
 .playlist_cover{
     margin-top: 6vh;
-    width: 10vw;
-    height: 10vw;
+    width: var(--playlist_img_size);
+    height: var(--playlist_img_size);
     border-radius: 8px;
 }
 
 .playlist_title{
-    width: 12vw;
+    width: var(--playlist_text_width);
     margin: 0;
     margin-bottom: 6vh;
     text-align: center;

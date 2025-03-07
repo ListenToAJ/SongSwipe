@@ -1,6 +1,5 @@
 $(document).ready(async function () {
-
-    const uri = 'NO_IP_FOR_YOU' // TODO: we need to put the uri on something
+    const uri = 'http://10.248.19.22:9000/' // TODO: we need to put the uri on something
 
     const url = new URL(window.location.href);
     const oauth_data = JSON.parse(url.searchParams.get('data'));
