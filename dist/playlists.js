@@ -1,5 +1,5 @@
 $(document).ready(async function () {
-    const uri = 'NO_IP_FOR_YOU' // TODO: we need to put the uri on something
+    const uri = 'INSERT_IP' // TODO: make uri not hardcoded
 
     const url = new URL(window.location.href);
     const oauth_data = JSON.parse(url.searchParams.get('data'));
@@ -22,24 +22,41 @@ $(document).ready(async function () {
     let user_icon = document.getElementById('user_icon');
     user_icon.src = data_user.images[0].url;
     
-    function create_playlist_card(title, img_url) {
+    function create_playlist_card(playlist) {
         var card = document.createElement('div');
         card.className = 'playlist_card';
         
         var img = document.createElement('img');
         img.className = 'playlist_cover';
-        img.src = img_url;
+        img.src = playlist.images[0].url;
         
         var title_text = document.createElement('p');
         title_text.className = 'playlist_title';
-        title_text.innerText = title;
+        title_text.innerText = playlist.name;
 
         card.appendChild(img);
         card.appendChild(title_text);
+
+        card.addEventListener('click', async () => {
+            // For now just pull and display filtered playlist json.
+            // Eventually will be refactored to go somewhere else
+            let playlist_url = new URL(`${uri}.netlify/functions/api/playlist/build`);
+            playlist_url.searchParams.set('playlist_id', playlist.id);
+            
+            const playlist_request = new Request(playlist_url.toString(), {
+                method: 'GET',
+                headers: headers,
+            })
+
+            const response_playlist = await fetch(playlist_request);
+            const data_playlist = await response_playlist.json();
+            console.log(data_playlist) 
+        })
+
         return card;
     }
 
-    const request_playlists = new Request(`${uri}.netlify/functions/api/playlists`, {
+    const request_playlists = new Request(`${uri}.netlify/functions/api/user/playlists`, {
         method: 'GET',
         headers: headers,
     });
@@ -49,6 +66,6 @@ $(document).ready(async function () {
 
     let playlist_container = document.getElementById('playlists_container');
     for (i = 0; i < data_playlists.items.length; i++) {
-        playlist_container.appendChild(create_playlist_card(data_playlists.items[i].name, data_playlists.items[i].images[0].url));
+        playlist_container.appendChild(create_playlist_card(data_playlists.items[i]));
     }
 });

@@ -2,7 +2,7 @@ import express, { Router } from 'express'
 import serverless from 'serverless-http'
 import { config } from 'dotenv';
 import { generateRandomString } from './util';
-import { fetchUserInfo, fetchUserPlaylists } from './spotify-interactions';
+import { buildPlaylist, fetchPlaylist, fetchUserInfo, fetchUserPlaylists } from './spotify-interactions';
 import cors from 'cors';
 
 // TODO: document routes
@@ -59,17 +59,30 @@ router.get('/auth/callback', async (req, res) => {
     res.redirect(redirect_home + `?data=${JSON.stringify(data)}`);
 });
 
-router.get('/playlists', async (req, res) => {
-    // TODO: this needs a lot of work lol for a simple test
-    const data = await fetchUserPlaylists(req.headers.authorization ?? "");
-    res.json(data);
-});
 
 router.get('/user', async (req, res) => {
     // TODO: same as playlist route
     const data = await fetchUserInfo(req.headers.authorization ?? "");
     res.json(data);
 })
+
+router.get('/user/playlists', async (req, res) => {
+    // TODO: this needs a lot of work lol for a simple test
+    const data = await fetchUserPlaylists(req.headers.authorization ?? "");
+    res.json(data);
+});
+
+router.get('/playlist', async (req, res) => {
+    // TODO: same as other spotify resource routes
+    const data = await fetchPlaylist(req.headers.authorization ?? "", req.query.playlist_id?.toString() ?? "");
+    res.json(data);
+});
+
+router.get('/playlist/build', async (req, res) => {
+    // TODO: same as other spotify resource routes
+    const data = await buildPlaylist(req.headers.authorization ?? "", req.query.playlist_id?.toString() ?? "");
+    res.json(data);
+});
 
 app.use("/.netlify/functions/api", router);
 
