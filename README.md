@@ -6,7 +6,10 @@ SongSwipe will be a mobile web application that allows for a easier, quicker, an
 
 It allows for a simple Tinder-inspired swipe left-or-right motion  to decide whether a song will remain in your playlist or be removed.  Previews of the song will be played automatically.  Not only can a user easily remove unwanted old songs from their own playlists, but also filter out songs from a copy of another users playlist to make it more personal to the user.
 
-<!-- ![Screenshot](screenshot.png) -->
+<p align="center">
+    <img src="assets/img/screenshot.png" alt="Screenshot" width="300">
+</p>
+
 ## Feature Plans
 ### Core Features:
 - Swiping mechanic

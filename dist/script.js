@@ -57,10 +57,21 @@ $(document).ready(async function () {
      *   - direction: The direction of the swipe (-1 for left, 1 for right, 0 for no swipe).
      */
     function computeSwipeDetails(event) {
-        let touch = event.touches[0]; // Get first touch point
+        let clientX, clientY;
+    
+        if (event.touches) {
+            // Handle touch event
+            clientX = event.touches[0].clientX;
+            clientY = event.touches[0].clientY;
+        } else {
+            // Handle mouse event
+            clientX = event.clientX;
+            clientY = event.clientY;
+        }
+    
         swipe_start = [startX, startY];
-        swipe_current = [touch.clientX, touch.clientY];
-
+        swipe_current = [clientX, clientY];
+    
         // Compute the distance (Euclidean distance)
         let sumOfSquares = 0;
         for (let i = 0; i < swipe_start.length; i++) {
@@ -70,7 +81,7 @@ $(document).ready(async function () {
         const distance = Math.sqrt(sumOfSquares);
         const angle = getAngle(swipe_start, swipe_current);
         let direction;
-
+    
         if (angle < 180 + ANGLE_OF_ALLOWANCE / 2 && angle > 180 - ANGLE_OF_ALLOWANCE / 2) {
             direction = -1;
         } else if (angle > 360 - ANGLE_OF_ALLOWANCE / 2 || angle < 0 + ANGLE_OF_ALLOWANCE / 2) {
@@ -78,14 +89,14 @@ $(document).ready(async function () {
         } else {
             direction = 0;
         }
-
-        // Return the result: distance, and angle
+    
         return {
-            distance: distance, // Distance with sign based on direction
-            angle: angle,       // Angle in degrees (0 to 360 range)
-            direction: direction // Direction is either -1 for left swipe or 1 for right swipe
+            distance: distance, 
+            angle: angle,       
+            direction: direction 
         };
     }
+    
 
     /**
      * Calculates the angle between two points in a 2D plane.
