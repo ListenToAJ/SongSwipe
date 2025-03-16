@@ -1,17 +1,17 @@
 const base_url = 'https://api.spotify.com/v1'
 
+export enum HttpMethod { GET, POST, PATCH, PUT, DELETE }
 /*
 * Create the request needed with specified endpoint. 
 * 
 * @param {string} endpoint - the endpoint you wish to make the request to.
 * @return {request} request - the request object for the interaction.
 */
-function createRequest(endpoint: string, access_token: string) {
+export function createRequest(endpoint: string, access_token: string, method: HttpMethod) {
     let headers = new Headers();
     headers.set('Authorization', ` Bearer ${access_token}`);
 
     let request = new Request(base_url + endpoint, {
-        method: 'GET',
         headers: headers,
     });
     return request
@@ -25,7 +25,7 @@ function createRequest(endpoint: string, access_token: string) {
 * https://developer.spotify.com/documentation/web-api/reference/get-a-list-of-current-users-playlists
 */
 export async function fetchUserPlaylists(access_token: string) {
-    const request = createRequest('/me/playlists', access_token); 
+    const request = createRequest('/me/playlists', access_token, HttpMethod.GET); 
 
     // TODO: add error handling
     const response = await fetch(request);
@@ -41,7 +41,7 @@ export async function fetchUserPlaylists(access_token: string) {
 * https://developer.spotify.com/documentation/web-api/reference/get-current-users-profile
 */
 export async function fetchUserInfo(access_token: string) {
-    const request = createRequest('/me', access_token);
+    const request = createRequest('/me', access_token, HttpMethod.GET);
 
     // TODO: add error handling
     const response = await fetch(request);
@@ -58,7 +58,7 @@ export async function fetchUserInfo(access_token: string) {
 * https://developer.spotify.com/documentation/web-api/reference/get-playlist
 */
 export async function fetchPlaylist(access_token: string, playlist_id: string) {
-    const request = createRequest(`/playlists/${playlist_id}`, access_token);
+    const request = createRequest(`/playlists/${playlist_id}`, access_token, HttpMethod.GET);
 
     // TODO: add error handling
     const response = await fetch(request);
@@ -78,7 +78,7 @@ export async function fetchPlaylist(access_token: string, playlist_id: string) {
 export async function fetchPlaylistTracks(access_token: string, playlist_id: string, offset: number) {
     let params = new URLSearchParams();
     params.set('offset', String(offset))
-    const request = createRequest(`/playlists/${playlist_id}/tracks?${params.toString()}`, access_token)
+    const request = createRequest(`/playlists/${playlist_id}/tracks?${params.toString()}`, access_token, HttpMethod.GET)
 
     // TODO: add error handling
     const response = await fetch(request);
