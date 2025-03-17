@@ -1,44 +1,58 @@
-/* Non-Styling Blocks */
 
+/* Non-Styling Blocks */
 .roboto-gf {
     font-family: "Roboto", serif;
     font-optical-sizing: auto;
     font-weight: 100 900;
     font-style: normal;
     font-variation-settings:
-      "wdth" 100;
-  }
+    "wdth" 100;
+}
 
-  .anton-regular {
+.anton-regular {
     font-family: "Anton", serif;
     font-weight: 400;
     font-style: normal;
-  }
-  
-  .dm-serif-display-regular {
+}
+
+.dm-serif-display-regular {
     font-family: "DM Serif Display", serif;
     font-weight: 400;
     font-style: normal;
-  }
-  
-  .dm-serif-display-regular-italic {
+}
+
+.dm-serif-display-regular-italic {
     font-family: "DM Serif Display", serif;
     font-weight: 400;
     font-style: italic;
-  }
-  
-  @font-face {
+}
+
+@font-face {
     font-family: "Gotham";
     src: url("assets/fonts/Gotham-Black.otf");
     font-weight: 700;
     font-size: normal;
-  }
+}
 
-  :root{
+:root{
     --card_top_spacing: 15%;
+    --playlist_card_size: 11vw;
+    --playlist_img_size: 10vw;
+    --playlist_text_width: 12vw;
+    --playlist_user_icon_size: 3vw;
     touch-action: pan-x pan-y;
     height: 100% 
-  }
+}
+
+/* Mobile Media Query */
+@media (max-width: 500px) {
+    :root {
+        --playlist_card_size: 50vw;
+        --playlist_img_size: 42vw;
+        --playlist_text_width: 50vw;
+        --playlist_user_icon_size: 10vw;
+    }
+}
 /* Big Styling (Containers, Body, etc.) */
 
 #app_container{
@@ -181,4 +195,83 @@ transform: translateX(200px) rotate(20deg);
 .subtitle{
     /* color: rgb(225, 225, 225); */
     opacity: 75%;
+}
+
+/* Playlists Page Styling */
+#user_icon{
+    width: var(--playlist_user_icon_size);
+    height: var(--playlist_user_icon_size);
+    border-radius: 2vw;
+}
+
+#selection_title{
+    color: #FAF9F6;
+    font-size: 3vh;
+    text-align: center;
+    top: 0px;
+    bottom: 0px;
+    margin: auto;
+    position: absolute;
+    height: fit-content;
+    width: fit-content;
+    left: 0px;
+    right: 0px;
+    background-color: #14191d;;
+    padding-left: 2vw;
+    padding-right: 2vw;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+    border-radius: 15px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #FAF9F6;
+    display: flex;
+    align-items: center;
+    gap: 1vw;
+
+    font-family: 'DM Serif Display';
+    box-shadow: 0px 35px 13px -32px rgba(0, 0, 0, 0.75)
+}
+
+#playlists_container{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    gap: 5vw;
+    flex-wrap: wrap;
+}
+
+.playlist_card{
+    width: var(--playlist_card_size);
+    height: var(--playlist_card_size);
+    padding: 2vw;
+    background-color: #14191d;;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #FAF9F6;
+    color: #FAF9F6;
+    font-size: 2vh;
+    gap: 2vh;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.playlist_cover{
+    margin-top: 6vh;
+    width: var(--playlist_img_size);
+    height: var(--playlist_img_size);
+    border-radius: 8px;
+}
+
+.playlist_title{
+    width: var(--playlist_text_width);
+    margin: 0;
+    margin-bottom: 6vh;
+    text-align: center;
 }
