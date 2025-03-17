@@ -10,8 +10,9 @@ export enum HttpMethod { GET, POST, PATCH, PUT, DELETE }
 export function createRequest(endpoint: string, access_token: string, method: HttpMethod) {
     let headers = new Headers();
     headers.set('Authorization', ` Bearer ${access_token}`);
-
+    
     let request = new Request(base_url + endpoint, {
+        method: HttpMethod[method],
         headers: headers,
     });
     return request
