@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "start": "npx tsc && ./node_modules/.bin/netlify-lambda serve build",
+    "dev": "npx tsc && concurrently \"http-server ./dist/\" \"./node_modules/.bin/netlify-lambda serve build\"",
     "build": "npx tsc && ./node_modules/.bin/netlify-lambda build build",
     "test": "jest"
   },
@@ -12,9 +13,11 @@
     "@spotify/web-api-ts-sdk": "^1.2.0",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
+    "concurrently": "^9.1.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "http-server": "^14.1.1",
     "jest": "^29.7.0",
     "netlify-lambda": "^2.0.16",
     "serverless-http": "^3.2.0",

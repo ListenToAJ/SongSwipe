@@ -1,5 +1,5 @@
 $(document).ready(async function () {
-    const uri = 'INSERT_IP' // TODO: make uri not hardcoded
+    const uri = 'http://127.0.0.1:9000/' // TODO: make uri not hardcoded
 
     const url = new URL(window.location.href);
     const oauth_data = JSON.parse(url.searchParams.get('data'));
