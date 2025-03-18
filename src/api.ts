@@ -5,7 +5,7 @@ import { generateRandomString } from './util';
 import { buildPlaylist, fetchPlaylist, fetchUserInfo, fetchUserPlaylists } from './spotify-interactions';
 import cors from 'cors';
 
-// TODO: document routes
+// TODO: document routes + extract endpoints to a function to unit test them
 
 config(); // Load .env with Spotify credentials 
 // Set constants for env secrets

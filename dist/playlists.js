@@ -20,7 +20,7 @@ $(document).ready(async function () {
     header_text.innerText = data_user.display_name + '\'s Playlists';
 
     let user_icon = document.getElementById('user_icon');
-    user_icon.src = data_user.images[0].url;
+    user_icon.src = data_user.images[0].url; // We need to add a check if the user does not have a profile icon
     
     function create_playlist_card(playlist) {
         var card = document.createElement('div');
