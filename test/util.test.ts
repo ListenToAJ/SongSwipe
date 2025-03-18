@@ -1,10 +1,16 @@
 import { generateRandomString } from "../src/util";
 
 describe('util module tests', () => {
-    test('test length (6)', () => {
-        expect(generateRandomString(6).length).toBe(6);
-    });
-    test('test length (8)', () => {
-        expect(generateRandomString(8).length).toBe(8);
+    test.each([
+        [0, 0],
+        [1, 1],
+        [2, 2],
+        [6, 6],
+        [8, 8],
+        [10, 10],
+        [100, 100],
+        [1000, 1000]
+    ])('test length of random string', (input, expected) => {
+        expect(generateRandomString(input).length).toBe(expected);
     });
 });
