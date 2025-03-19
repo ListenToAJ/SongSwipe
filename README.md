@@ -37,7 +37,7 @@ It allows for a simple Tinder-inspired swipe left-or-right motion  to decide whe
 
 ## Getting Started
 
-The following steps will allow you to run SongSwipe locally on your machine. Before beginning you must have `node` and `npm` installed on your computer. If you have `git` installed, the following command can clone the project. 
+The following steps will allow you to run SongSwipe locally on your machine. Before beginning you must have `node` and `npm` installed on your computer. If you have `git` installed, the following command can clone the project. You also will need to create an application on the [Spotify Developer Portal](https://developer.spotify.com/).
 ```
 git clone https://github.com/ListenToAJ/SongSwipe.git
 ```
@@ -71,6 +71,11 @@ Once dependencies are installed and the `.env` file is created and populated you
 ```
 npm start (will just run the backend express app, use if you plan to use your own http server to distribute the frontend)
 npm run dev (will launch both a server to distribute the frontend and execute the backend)
+```
+At the current moment we do not have a landing page set up so to check out what we have for the application you can go to either of these urls. Please note port `8080` is the default port for `http-server` and port `9000` is the default port for the express backend so if you decide to change them make sure you update the urls accordingly. 
+```
+http://127.0.0.1:8080/index.html (song swiping demo, mobile only)
+http://127.0.0.1:9000/.netlify/functions/api/auth/login (will ask you to sign in then redirect you to the work in progres playlist selection screen)
 ```
 
 Our unit tests can be ran with the following command.
