@@ -140,10 +140,12 @@ export async function buildPlaylist(access_token: string, playlist_id: string) {
         }
     }
 
-    return {
-        name: playlist.name,
-        id: playlist.id,
-        tracks: track_list,
-        img_url: playlist.images[0].url,
+    return { 'data': {
+                name: playlist.name,
+                id: playlist.id,
+                tracks: track_list,
+                img_url: playlist.images[0].url,
+            }, 
+             'status': StatusCodes.OK,
     };
 }

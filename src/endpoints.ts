@@ -3,8 +3,6 @@ import { generateRandomString, StatusCodes } from "./util";
 import { config } from 'dotenv';
 import { fetchPlaylist, fetchUserInfo, fetchUserPlaylists, buildPlaylist } from "./spotify-interactions";
 
-// TODO: document endpoints and util functions
-
 // Load .env with Spotify credentials & set constants for env secrets
 config();
 const spotify_client_id = process.env.SPOTIFY_CLIENT_ID ?? "";
@@ -12,6 +10,12 @@ const spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET ?? "";
 const redirect_uri = process.env.REDIRECT_URI_AUTH ?? "";
 const redirect_home = process.env.REDIRECT_URI_HOME ?? "";
 
+/*
+ * Endpoint: /auth/login
+ * Description: Used to begin the Oauth auth flow. Redirects the user to the Spotify sign in.
+ * 
+ * Response: Redirect to the Spotify login in page.
+ */
 export function authLogin(req: Request, res: Response) {
     // TODO: will need to be altered with write permissions
     const scope = 'playlist-read-private \
@@ -31,6 +35,13 @@ export function authLogin(req: Request, res: Response) {
     res.redirect('https://accounts.spotify.com/authorize?' + auth_query_parameters.toString());
 }
 
+/*
+ * Endpoint: /auth/callback
+ * Description: Used as a callback after signing in with Spotify. After a successful sign in 
+ *              redirects the user to the playlists page.
+ * 
+ * Response: Redirect to the playlists page.
+ */
 export async function authCallback(req: Request, res: Response) {
     const code = req.query.code?.toString() ?? "";
 
@@ -55,6 +66,14 @@ export async function authCallback(req: Request, res: Response) {
     res.redirect(redirect_home + `?data=${JSON.stringify(data)}`);
 }
 
+/*
+ * Endpoint: /user
+ * Description: Pulls data of the user's account. Requires the bearer token to be included
+ *              in the Authorization header.
+ * 
+ * Response: json of user's data. 
+ *           See fetchUserInfo() comment header for the link to the documentation with data format
+ */
 export async function userData(req: Request, res: Response) {
     const access_token = req.headers.authorization ?? "";
 
@@ -72,6 +91,14 @@ export async function userData(req: Request, res: Response) {
     res.status(status).json(data);
 }
 
+/*
+ * Endpoint: /user/playlists
+ * Description: Pulls data of the user's playlists, public & private. Requires the bearer token to 
+ *              be included in the Authorization header.
+ * 
+ * Response: json of user's data. 
+ *           See fetchUserPlaylists() comment header for the link to the documentation with data format
+ */
 export async function userPlaylists(req: Request, res: Response) {
     const access_token = req.headers.authorization ?? "";
     
@@ -89,6 +116,15 @@ export async function userPlaylists(req: Request, res: Response) {
     res.status(status).json(data);
 }
 
+/*
+ * Endpoint: /playlist
+ * Description: Pulls data of a playlist from its id. Requires the bearer token to be included
+ *              in the Authorization header. Also requires the playlist id to be in the
+ *              query parameter playlist_id.
+ * 
+ * Response: json of user's data. 
+ *           See fetchPlaylist() comment header for the link to the documentation with data format
+ */
 export async function playlistData(req: Request, res: Response) {
     const access_token = req.headers.authorization ?? "";
     const playlist_id = req.query.playlist_id?.toString() ?? "";
@@ -107,6 +143,15 @@ export async function playlistData(req: Request, res: Response) {
     res.status(status).json(data);
 }
 
+/*
+ * Endpoint: /playlist/build
+ * Description: Builds a filtered json of a playlist's data based on its id. Requires the 
+ *              bearer token to be included in the Authorization header. Also requires the 
+ *              playlist id to be in the query parameter playlist_id.
+ * 
+ * Response: json of user's data. 
+ *           See buildPlaylist() comment header for the link to the documentation with data format
+ */
 export async function playlistBuild(req: Request, res: Response) {
     const access_token = req.headers.authorization ?? "";
     const playlist_id = req.query.playlist_id?.toString() ?? "";
@@ -114,7 +159,7 @@ export async function playlistBuild(req: Request, res: Response) {
     let data = undefined;
     let status = StatusCodes.OK;
     if (access_token != "" && playlist_id != "") {
-        let res = await fetchPlaylist(access_token, playlist_id);
+        let res = await buildPlaylist(access_token, playlist_id);
         data = res.data;
         status = res.status;
     } else {

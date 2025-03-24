@@ -1,5 +1,5 @@
+// Http Status Codes and Method Enums
 export enum HttpMethod { GET, POST, PATCH, PUT, DELETE }
-
 export enum StatusCodes {
     OK = 200,
     CREATED=201,
