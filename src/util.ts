@@ -1,3 +1,15 @@
+export enum HttpMethod { GET, POST, PATCH, PUT, DELETE }
+
+export enum StatusCodes {
+    OK = 200,
+    CREATED=201,
+    BAD_REQUEST = 400,
+    UNAUTHORIZED = 401,
+    FORBIDDEN = 403,
+    NOT_FOUND = 404,
+    INTERNAL_SERVER_ERROR = 500,
+}
+
 /* 
 * A function to generate a random string of a specified length.
 * Provided by Spotify documentation.

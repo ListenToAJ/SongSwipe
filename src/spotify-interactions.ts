@@ -1,6 +1,7 @@
+import { HttpMethod, StatusCodes } from "./util";
+
 const base_url = 'https://api.spotify.com/v1'
 
-export enum HttpMethod { GET, POST, PATCH, PUT, DELETE }
 /*
 * Create the request needed with specified endpoint. 
 * 
@@ -18,6 +19,33 @@ export function createRequest(endpoint: string, access_token: string, method: Ht
     return request
 }
 
+/*
+* Check the response that has been received and return data based on the error.
+* 
+* @param {Response} res - the response you wish to check
+* @return {object} data - if valid an object that is in the body of the response, if not valid 
+*                         a simple object with an error attribute that explains issue
+*/
+export async function checkResponse(res: Response) {
+    let data = undefined;
+
+    switch(res.status) {
+    case StatusCodes.OK:
+        data = await res.json();
+        break;
+    case StatusCodes.UNAUTHORIZED:
+        data = { 'error': 'invalid access token' };
+        break;
+    case StatusCodes.NOT_FOUND:
+        data = { 'error': 'resource not found' };
+        break;
+    default:
+        data = { 'error': 'unhandled response code' };
+    }
+
+    return data;
+}
+
 /*  
 * Fetch the playlists of a user. Calls the /me/playlist endpoint.
 * 
@@ -28,10 +56,9 @@ export function createRequest(endpoint: string, access_token: string, method: Ht
 export async function fetchUserPlaylists(access_token: string) {
     const request = createRequest('/me/playlists', access_token, HttpMethod.GET); 
 
-    // TODO: add error handling
     const response = await fetch(request);
-    const data = await response.json();
-    return data;
+    const data = await checkResponse(response);
+    return { data: data, status: response.status };
 }
 
 /*
@@ -44,10 +71,9 @@ export async function fetchUserPlaylists(access_token: string) {
 export async function fetchUserInfo(access_token: string) {
     const request = createRequest('/me', access_token, HttpMethod.GET);
 
-    // TODO: add error handling
     const response = await fetch(request);
-    const data = await response.json();
-    return data;
+    const data = await checkResponse(response);
+    return { data: data, status: response.status };
 }
 
 /*
@@ -61,10 +87,9 @@ export async function fetchUserInfo(access_token: string) {
 export async function fetchPlaylist(access_token: string, playlist_id: string) {
     const request = createRequest(`/playlists/${playlist_id}`, access_token, HttpMethod.GET);
 
-    // TODO: add error handling
     const response = await fetch(request);
-    const data = await response.json();
-    return data;
+    const data = await checkResponse(response);
+    return { data: data, status: response.status };
 }
 
 /*
@@ -81,10 +106,9 @@ export async function fetchPlaylistTracks(access_token: string, playlist_id: str
     params.set('offset', String(offset))
     const request = createRequest(`/playlists/${playlist_id}/tracks?${params.toString()}`, access_token, HttpMethod.GET)
 
-    // TODO: add error handling
     const response = await fetch(request);
-    const data = await response.json();
-    return data;
+    const data = await checkResponse(response);
+    return { data: data, status: response.status };
 }
 
 /*
@@ -97,13 +121,14 @@ export async function fetchPlaylistTracks(access_token: string, playlist_id: str
 * @return {object} object that includes filtered playlist data st
 */
 export async function buildPlaylist(access_token: string, playlist_id: string) {
-    let playlist = await fetchPlaylist(access_token, playlist_id);
+    let res = await fetchPlaylist(access_token, playlist_id);
+    let playlist = res['data']
 
     // !! Seems to for the most part but there is an issue where it counts local files 
     // !! We need to add ignore logic for that into this 
     let track_list: any[] = []
     while (track_list.length != playlist.tracks.total) {
-        let data = await fetchPlaylistTracks(access_token, playlist_id, track_list.length);
+        let { data, status } = await fetchPlaylistTracks(access_token, playlist_id, track_list.length);
         for (const element of data.items) {
             track_list.push({
                 track_id: element.track.id,

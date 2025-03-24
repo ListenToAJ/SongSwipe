@@ -1,3 +1,4 @@
+// Credits: https://github.com/rexdotsh/spotify-preview-url-workaround?tab=readme-ov-file
 export async function getSpotifyPreviewUrl(spotifyTrackId: string): Promise<string | null> {
     try {
       const embedUrl = `https://open.spotify.com/embed/track/${spotifyTrackId}`;
