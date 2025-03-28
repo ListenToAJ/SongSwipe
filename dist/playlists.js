@@ -1,5 +1,10 @@
 $(document).ready(async function () {
-    const uri = 'http://127.0.0.1:9000/' // TODO: make uri not hardcoded
+    let uri = document.location.origin;
+    
+    const port_matching = uri.match(':[0-9]+');
+    if (port_matching != null) {
+        uri = uri.replace(port_matching[0], ':9000')
+    }
 
     const url = new URL(window.location.href);
     const oauth_data = JSON.parse(url.searchParams.get('data'));
@@ -8,7 +13,7 @@ $(document).ready(async function () {
     headers.set('Authorization', oauth_data.access_token);
     headers.set('Access-Control-Allow-Origin', '*');
     
-    const request_user = new Request(`${uri}.netlify/functions/api/user`, {
+    const request_user = new Request(`${uri}/.netlify/functions/api/user`, {
         method: 'GET',
         headers: headers,
     });
@@ -40,7 +45,7 @@ $(document).ready(async function () {
         card.addEventListener('click', async () => {
             // For now just pull and display filtered playlist json.
             // Eventually will be refactored to go somewhere else
-            let playlist_url = new URL(`${uri}.netlify/functions/api/playlist/build`);
+            let playlist_url = new URL(`${uri}/.netlify/functions/api/playlist/build`);
             playlist_url.searchParams.set('playlist_id', playlist.id);
             
             const playlist_request = new Request(playlist_url.toString(), {
@@ -56,7 +61,7 @@ $(document).ready(async function () {
         return card;
     }
 
-    const request_playlists = new Request(`${uri}.netlify/functions/api/user/playlists`, {
+    const request_playlists = new Request(`${uri}/.netlify/functions/api/user/playlists`, {
         method: 'GET',
         headers: headers,
     });

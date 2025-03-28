@@ -57,7 +57,7 @@ SPOTIFY_CLIENT_SECRET=<YOUR SPOTIFY SECRET>
 REDIRECT_URI_AUTH=http://127.0.0.1:9000/.netlify/functions/api/auth/callback
 REDIRECT_URI_HOME=http://127.0.0.1:8080/playlists.html
 ```
-You may also need to edit the second line of `dist/playlist.js` at the moment as well due to the URI for API calls being hardcoded at the moment. 
+You may also need to edit the sixth line of `dist/playlist.js` if you change the port that the backend api runs off of. 
 
 At the current moment our application requires a server that is distributing the `dist` directory of the project to be able to function. This is to emulate what is eventually going to be hosted on netlify. Our dependencies include the `http-server` node module that can be used for this however, if it does not work you can install it with the following command.
 ```
@@ -67,7 +67,7 @@ Editors like Visual Studio Code also have extensions that can provide a live htt
 
 ### Running Locally
 
-Once dependencies are installed and the `.env` file is created and populated you can run the application with either of the following commands.
+Once dependencies are installed and the `.env` file iat the moment as well due to the URI for API calls being hardcoded at the moment. s created and populated you can run the application with either of the following commands.
 ```
 npm start (will just run the backend express app, use if you plan to use your own http server to distribute the frontend)
 npm run dev (will launch both a server to distribute the frontend and execute the backend)

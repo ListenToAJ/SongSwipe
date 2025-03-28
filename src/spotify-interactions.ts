@@ -124,8 +124,6 @@ export async function buildPlaylist(access_token: string, playlist_id: string) {
     let res = await fetchPlaylist(access_token, playlist_id);
     let playlist = res['data']
 
-    // !! Seems to for the most part but there is an issue where it counts local files 
-    // !! We need to add ignore logic for that into this 
     let track_list: any[] = []
     while (track_list.length != playlist.tracks.total) {
         let { data, status } = await fetchPlaylistTracks(access_token, playlist_id, track_list.length);
