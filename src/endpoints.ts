@@ -1,4 +1,3 @@
-import { Request, Response } from "express";
 import { ERROR_RESPONSES, generateRandomString, StatusCodes } from "./util";
 import { config } from 'dotenv';
 import { fetchPlaylist, fetchUserInfo, fetchUserPlaylists, buildPlaylist } from "./spotify-interactions";
@@ -45,13 +44,12 @@ export function authLogin(req: any, res: any) {
 export async function authCallback(req: any, res: any) {
     const code = req.query.code?.toString() ?? "";
 
-    const headers = new Headers();
-    headers.set('Content-Type', 'application/x-www-form-urlencoded');
-    headers.set('Authorization', 'Basic ' + (Buffer.from(spotify_client_id + ':' + spotify_client_secret).toString('base64')));
-
     const request = new Request('https://accounts.spotify.com/api/token', {
         method: 'POST',
-        headers: headers,
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': 'Basic ' + (Buffer.from(spotify_client_id + ':' + spotify_client_secret).toString('base64')),
+        },
         body: `grant_type=authorization_code&redirect_uri=${redirect_uri}&code=${code}`,
     });
 
@@ -61,9 +59,45 @@ export async function authCallback(req: any, res: any) {
     if (response.status != 200) {
         // TODO: redirect to an error page
         res.redirect(redirect_home);
+        return;
     }
 
     res.redirect(redirect_home + `?data=${JSON.stringify(data)}`);
+}
+
+export async function authRefresh(req: any, res: any) {
+    const refresh_token = req.query.refresh_token?.toString() ?? "";
+
+    if (refresh_token == "") {
+        res.status(StatusCodes.BAD_REQUEST);
+        res.json(ERROR_RESPONSES.INVALID_TOKEN);
+        return;
+    }
+
+    const request = new Request('https://accounts.spotify.com/api/token', {
+        method:'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': 'Basic ' + (Buffer.from(spotify_client_id + ':' + spotify_client_secret).toString('base64')),
+        },
+        body: new URLSearchParams({
+            grant_type: 'refresh_token',
+            refresh_token: refresh_token,
+            client_id: spotify_client_id,
+        }),
+    })
+
+    const response = await fetch(request);
+    const data = await response.json();
+
+    if (response.status != 200) {
+        res.status(StatusCodes.BAD_REQUEST);
+        res.json(ERROR_RESPONSES.REFRESH_ERROR);
+        return;
+    }
+
+    res.status(StatusCodes.OK);
+    res.json(data);
 }
 
 /*

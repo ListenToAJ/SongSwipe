@@ -16,6 +16,7 @@ export const ERROR_RESPONSES = {
     'INVALID_TOKEN': { 'error': 'invalid access token' },
     'NOT_FOUND': { 'error': 'resource not found' },
     'UNHANDLED': { 'error': 'unhandled response code' },
+    'REFRESH_ERROR': { 'error' : 'failed to refresh access token' }
 }
 
 /* 

@@ -1,4 +1,4 @@
-import { authCallback, authLogin, playlistData, userData, userPlaylists } from '../src/endpoints';
+import { authCallback, authLogin, authRefresh, playlistData, userData, userPlaylists } from '../src/endpoints';
 import { ERROR_RESPONSES, StatusCodes } from '../src/util';
 
 // Default req and res schemas
@@ -9,6 +9,7 @@ const req = {
     query: {
         code: '',
         playlist_id: '',
+        refresh_token: '',
     }
 }
 
@@ -86,6 +87,47 @@ describe('authCallback endpoint tests', () => {
     });
 });
 
+describe('authRefresh endpoint tests', () => {
+    beforeAll(() => {
+        global.fetch = jest.fn().mockResolvedValue({
+            status: StatusCodes.OK,
+            json: jest.fn(() => ({access_token: '120X'}))
+        });
+    })
+    
+    beforeEach(() => {
+        res.status.mockReset();
+        res.json.mockReset();
+    })
+
+    test('correct status and response when refresh token is provided', async () => {
+        let req = { 'query': {'refresh_token': '12345'} };
+
+        await authRefresh(req, res);
+        expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
+        expect(res.json).toHaveBeenCalledWith({access_token: '120X'});
+    });
+
+    test('correct status and response when no refresh token is provided', async () => {
+        await authRefresh(req, res);
+        expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
+        expect(res.json).toHaveBeenCalledWith(ERROR_RESPONSES.INVALID_TOKEN);
+    });
+
+    test('correct status and response if there is an issue with the fetch', async () => {
+        global.fetch = jest.fn().mockResolvedValue({
+            status: StatusCodes.BAD_REQUEST,
+            json: jest.fn(() => ({access_token: '120X'})),
+        });
+
+        let req = { 'query': {'refresh_token': '12345'} };
+
+        await authRefresh(req, res);
+        expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
+        expect(res.json).toHaveBeenCalledWith(ERROR_RESPONSES.REFRESH_ERROR);
+    });
+});
+
 describe('userData endpoint tests', () => {    
     beforeEach(() => {
         res.status.mockReset();
@@ -93,27 +135,17 @@ describe('userData endpoint tests', () => {
     })
 
 
-    test('correct status when auth code is provided', async () => {
+    test('correct status and response when auth code is provided', async () => {
         let req = { 'headers': {'authorization': 'test'} };
 
         await userData(req, res);
         expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
-    });
-
-    test('correct status when no auth code is provided', async () => {
-        await userData(req, res);
-        expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
-    });
-
-    test('correct respone data if auth code is provided', async () => {
-        let req = { 'headers': {'authorization': 'test'} };
-        
-        await userData(req, res);
         expect(res.json).toHaveBeenCalledWith(mockUserData);
     });
 
-    test('correct response data if no auth code is provided', async () => {
+    test('correct status and response when no auth code is provided', async () => {
         await userData(req, res);
+        expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
         expect(res.json).toHaveBeenCalledWith(ERROR_RESPONSES.NO_AUTH);
     });
 });
@@ -125,27 +157,17 @@ describe('userPlaylists endpoint tests', () => {
     })
 
 
-    test('correct status when auth code is provided', async () => {
+    test('correct status and response when auth code is provided', async () => {
         let req = { 'headers': {'authorization': 'test'} };
 
         await userPlaylists(req, res);
         expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
-    });
-
-    test('correct status when no auth code is provided', async () => {
-        await userPlaylists(req, res);
-        expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
-    });
-
-    test('correct respone data if auth code is provided', async () => {
-        let req = { 'headers': {'authorization': 'test'} };
-        
-        await userPlaylists(req, res);
         expect(res.json).toHaveBeenCalledWith(mockUserPlaylists);
     });
 
-    test('correct response data if no auth code is provided', async () => {
+    test('correct status and response when no auth code is provided', async () => {
         await userPlaylists(req, res);
+        expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
         expect(res.json).toHaveBeenCalledWith(ERROR_RESPONSES.NO_AUTH);
     });
 });
@@ -156,55 +178,33 @@ describe('playlistData endpoint tests', () => {
         res.json.mockReset();
     })
 
-    test('correct status when auth code and playlist id is provided', async () => {
+    test('correct status and response when auth code and playlist id is provided', async () => {
         let req = { 'headers': {'authorization': 'test'}, 'query': {'playlist_id': '12345'} };
 
         await playlistData(req, res);
         expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
+        expect(res.json).toHaveBeenCalledWith(mockPlaylistData);
     });
 
-    test('correct status when no auth code or playlist id is provided', async () => {
+    test('correct status and response when no auth code or playlist id is provided', async () => {
         await playlistData(req, res);
         expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
+        expect(res.json).toHaveBeenCalledWith(ERROR_RESPONSES.NO_AUTH_OR_PARAM);
     });
 
-    test('correct status when no auth code is provided but playlist is', async () => {
+    test('correct status and response when no auth code is provided but playlist is', async () => {
         let req = { 'headers': {'authorization': ''}, 'query': {'playlist_id': '12345'} };
 
         await playlistData(req, res);
         expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
+        expect(res.json).toHaveBeenCalledWith(ERROR_RESPONSES.NO_AUTH_OR_PARAM);
     });
 
-    test('correct status when no playlist id is provided but auth code is', async () => {
+    test('correct status and response when no playlist id is provided but auth code is', async () => {
         let req = { 'headers': {'authorization': ''}, 'query': {'playlist_id': ''} };
 
         await playlistData(req, res);
         expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST);
-    });
-
-    test('correct respone data if auth code and playlist id is provided', async () => {
-        let req = { 'headers': {'authorization': 'test'}, 'query': {'playlist_id': '12345'} };
-        
-        await playlistData(req, res);
-        expect(res.json).toHaveBeenCalledWith(mockPlaylistData);
-    });
-
-    test('correct response data if no auth code is provided', async () => {
-        await playlistData(req, res);
-        expect(res.json).toHaveBeenCalledWith(ERROR_RESPONSES.NO_AUTH_OR_PARAM);
-    });
-
-    test('correct respone data if playlist id is provided but no auth code', async () => {
-        let req = { 'headers': {'authorization': ''}, 'query': {'playlist_id': '12345'} };
-        
-        await playlistData(req, res);
-        expect(res.json).toHaveBeenCalledWith(ERROR_RESPONSES.NO_AUTH_OR_PARAM);
-    });
-
-    test('correct respone data if auth code is provided but no playlist id', async () => {
-        let req = { 'headers': {'authorization': 'test'}, 'query': {'playlist_id': ''} };
-        
-        await playlistData(req, res);
         expect(res.json).toHaveBeenCalledWith(ERROR_RESPONSES.NO_AUTH_OR_PARAM);
     });
 });
