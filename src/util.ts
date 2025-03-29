@@ -10,6 +10,14 @@ export enum StatusCodes {
     INTERNAL_SERVER_ERROR = 500,
 }
 
+export const ERROR_RESPONSES = {
+    'NO_AUTH': { 'error': 'authorization token not provided' },
+    'NO_AUTH_OR_PARAM': { 'error': 'authorization token or playlist_id not provided' },
+    'INVALID_TOKEN': { 'error': 'invalid access token' },
+    'NOT_FOUND': { 'error': 'resource not found' },
+    'UNHANDLED': { 'error': 'unhandled response code' },
+}
+
 /* 
 * A function to generate a random string of a specified length.
 * Provided by Spotify documentation.

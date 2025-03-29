@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { generateRandomString, StatusCodes } from "./util";
+import { ERROR_RESPONSES, generateRandomString, StatusCodes } from "./util";
 import { config } from 'dotenv';
 import { fetchPlaylist, fetchUserInfo, fetchUserPlaylists, buildPlaylist } from "./spotify-interactions";
 
@@ -16,7 +16,7 @@ const redirect_home = process.env.REDIRECT_URI_HOME ?? "";
  * 
  * Response: Redirect to the Spotify login in page.
  */
-export function authLogin(req: Request, res: Response) {
+export function authLogin(req: any, res: any) {
     // TODO: will need to be altered with write permissions
     const scope = 'playlist-read-private \
                     user-read-email \
@@ -42,7 +42,7 @@ export function authLogin(req: Request, res: Response) {
  * 
  * Response: Redirect to the playlists page.
  */
-export async function authCallback(req: Request, res: Response) {
+export async function authCallback(req: any, res: any) {
     const code = req.query.code?.toString() ?? "";
 
     const headers = new Headers();
@@ -74,7 +74,7 @@ export async function authCallback(req: Request, res: Response) {
  * Response: json of user's data. 
  *           See fetchUserInfo() comment header for the link to the documentation with data format
  */
-export async function userData(req: Request, res: Response) {
+export async function userData(req: any, res: any) {
     const access_token = req.headers.authorization ?? "";
 
     let data = undefined;
@@ -84,11 +84,12 @@ export async function userData(req: Request, res: Response) {
         data = res.data;
         status = res.status;
     } else {
-        data = { 'error': 'authorization token not provided' };
+        data = ERROR_RESPONSES.NO_AUTH;
         status = StatusCodes.BAD_REQUEST;
     }
 
-    res.status(status).json(data);
+    res.status(status);
+    res.json(data);
 }
 
 /*
@@ -99,9 +100,10 @@ export async function userData(req: Request, res: Response) {
  * Response: json of user's data. 
  *           See fetchUserPlaylists() comment header for the link to the documentation with data format
  */
-export async function userPlaylists(req: Request, res: Response) {
+export async function userPlaylists(req: any, res: any) {
     const access_token = req.headers.authorization ?? "";
     
+    // TODO: This has a limit on how much you can grab so we need to add that in
     let data = undefined;
     let status = StatusCodes.OK;
     if (access_token != "") {
@@ -109,11 +111,12 @@ export async function userPlaylists(req: Request, res: Response) {
         data = res.data;
         status = res.status;
     } else {
-        data = { 'error': 'authorization token not provided' };
+        data = ERROR_RESPONSES.NO_AUTH;
         status = StatusCodes.BAD_REQUEST;
     }
     
-    res.status(status).json(data);
+    res.status(status);
+    res.json(data);
 }
 
 /*
@@ -125,7 +128,7 @@ export async function userPlaylists(req: Request, res: Response) {
  * Response: json of user's data. 
  *           See fetchPlaylist() comment header for the link to the documentation with data format
  */
-export async function playlistData(req: Request, res: Response) {
+export async function playlistData(req: any, res: any) {
     const access_token = req.headers.authorization ?? "";
     const playlist_id = req.query.playlist_id?.toString() ?? "";
 
@@ -136,11 +139,12 @@ export async function playlistData(req: Request, res: Response) {
         data = res.data;
         status = res.status;
     } else {
-        data = { 'error': 'authorization token or playlist_id not provided' };
+        data = ERROR_RESPONSES.NO_AUTH_OR_PARAM;
         status = StatusCodes.BAD_REQUEST;
     }
     
-    res.status(status).json(data);
+    res.status(status);
+    res.json(data);
 }
 
 /*
@@ -152,7 +156,7 @@ export async function playlistData(req: Request, res: Response) {
  * Response: json of user's data. 
  *           See buildPlaylist() comment header for the link to the documentation with data format
  */
-export async function playlistBuild(req: Request, res: Response) {
+export async function playlistBuild(req: any, res: any) {
     const access_token = req.headers.authorization ?? "";
     const playlist_id = req.query.playlist_id?.toString() ?? "";
     
@@ -163,9 +167,10 @@ export async function playlistBuild(req: Request, res: Response) {
         data = res.data;
         status = res.status;
     } else {
-        data = { 'error': 'authorization token or playlist_id not provided' };
+        data = ERROR_RESPONSES.NO_AUTH_OR_PARAM;
         status = StatusCodes.BAD_REQUEST;
     }
     
-    res.status(status).json(data);
+    res.status(status);
+    res.json(data);
 }

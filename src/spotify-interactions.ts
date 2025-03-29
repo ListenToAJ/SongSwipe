@@ -1,4 +1,4 @@
-import { HttpMethod, StatusCodes } from "./util";
+import { ERROR_RESPONSES, HttpMethod, StatusCodes } from "./util";
 
 const base_url = 'https://api.spotify.com/v1'
 
@@ -34,13 +34,13 @@ export async function checkResponse(res: Response) {
         data = await res.json();
         break;
     case StatusCodes.UNAUTHORIZED:
-        data = { 'error': 'invalid access token' };
+        data = ERROR_RESPONSES.INVALID_TOKEN;
         break;
     case StatusCodes.NOT_FOUND:
-        data = { 'error': 'resource not found' };
+        data = ERROR_RESPONSES.NOT_FOUND;
         break;
     default:
-        data = { 'error': 'unhandled response code' };
+        data = ERROR_RESPONSES.UNHANDLED;
     }
 
     return data;
