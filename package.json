@@ -11,7 +11,7 @@
   "dependencies": {
     "@netlify/functions": "^3.0.1",
     "@spotify/web-api-ts-sdk": "^1.2.0",
-    "@types/express": "^5.0.0",
+    "@types/express": "^5.0.1",
     "@types/jest": "^29.5.14",
     "concurrently": "^9.1.2",
     "cors": "^2.8.5",

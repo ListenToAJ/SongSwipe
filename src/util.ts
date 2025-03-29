@@ -1,3 +1,24 @@
+// Http Status Codes and Method Enums
+export enum HttpMethod { GET, POST, PATCH, PUT, DELETE }
+export enum StatusCodes {
+    OK = 200,
+    CREATED=201,
+    BAD_REQUEST = 400,
+    UNAUTHORIZED = 401,
+    FORBIDDEN = 403,
+    NOT_FOUND = 404,
+    INTERNAL_SERVER_ERROR = 500,
+}
+
+export const ERROR_RESPONSES = {
+    'NO_AUTH': { 'error': 'authorization token not provided' },
+    'NO_AUTH_OR_PARAM': { 'error': 'authorization token or playlist_id not provided' },
+    'INVALID_TOKEN': { 'error': 'invalid access token' },
+    'NOT_FOUND': { 'error': 'resource not found' },
+    'UNHANDLED': { 'error': 'unhandled response code' },
+    'REFRESH_ERROR': { 'error' : 'failed to refresh access token' }
+}
+
 /* 
 * A function to generate a random string of a specified length.
 * Provided by Spotify documentation.

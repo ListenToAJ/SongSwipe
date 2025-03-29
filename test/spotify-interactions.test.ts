@@ -1,4 +1,5 @@
-import { createRequest, HttpMethod } from '../src/spotify-interactions';
+import { createRequest } from '../src/spotify-interactions';
+import { HttpMethod } from '../src/util';
 
 describe('createRequest tests', () => {
     test('correct base url', () => {

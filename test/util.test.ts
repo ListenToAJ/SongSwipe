@@ -1,6 +1,6 @@
 import { generateRandomString } from "../src/util";
 
-describe('util module tests', () => {
+describe('generateRandomString tests', () => {
     test.each([
         [0, 0],
         [1, 1],
