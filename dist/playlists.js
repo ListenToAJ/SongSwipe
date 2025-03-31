@@ -1,6 +1,5 @@
 $(document).ready(async function () {
-    //TODO: Add error handling and token refresh functionality
-    const access_token = localStorage.getItem('access_token');
+    let access_token = localStorage.getItem('access_token');
     
     const headers = new Headers();
     headers.set('Authorization', access_token);
@@ -11,6 +10,9 @@ $(document).ready(async function () {
         headers: headers,
     });
     
+    access_token = null;
+    if (checkAccessTokenExpiration()) access_token = refreshAccessToken();
+    if (access_token == null) renderError('Error refreshing access token.');
     const response_user = await fetch(request_user);
     const data_user = await response_user.json();
 
@@ -18,7 +20,10 @@ $(document).ready(async function () {
     header_text.innerText = data_user.display_name + '\'s Playlists';
 
     let user_icon = document.getElementById('user_icon');
-    user_icon.src = data_user.images[0].url; // We need to add a check if the user does not have a profile icon
+    if (data_user.images != null)
+        user_icon.src = data_user.images[0].url; 
+    else 
+        user_icon.src = 'assets/img/default_icon.jpg';
     
     function create_playlist_card(playlist) {
         var card = document.createElement('div');
@@ -26,7 +31,10 @@ $(document).ready(async function () {
         
         var img = document.createElement('img');
         img.className = 'playlist_cover';
-        img.src = playlist.images[0].url;
+        if (playlist.images != null)
+            img.src = playlist.images[0].url;
+        else 
+            img.src = 'assets/img/default_playlist_cover.png';
         
         var title_text = document.createElement('p');
         title_text.className = 'playlist_title';
@@ -46,6 +54,8 @@ $(document).ready(async function () {
                 headers: headers,
             })
 
+            if (checkAccessTokenExpiration()) access_token = refreshAccessToken();
+            if (access_token == null) renderError('Error refreshing access token.');
             const response_playlist = await fetch(playlist_request);
             const data_playlist = await response_playlist.json();
             console.log(data_playlist) 
@@ -59,11 +69,13 @@ $(document).ready(async function () {
         headers: headers,
     });
 
+    if (checkAccessTokenExpiration()) access_token = refreshAccessToken();
+    if (access_token == null) renderError('Error refreshing access token.');
     const response = await fetch(request_playlists);
     const data_playlists = await response.json();
 
     let playlist_container = document.getElementById('playlists_container');
-    for (i = 0; i < data_playlists.items.length; i++) {
+    for (i = 0; i < data_playlists.items.length && data_playlists.items != null; i++) {
         playlist_container.appendChild(create_playlist_card(data_playlists.items[i]));
     }
 });
