@@ -10,7 +10,6 @@ $(document).ready(async function () {
         headers: headers,
     });
     
-    access_token = null;
     if (checkAccessTokenExpiration()) access_token = refreshAccessToken();
     if (access_token == null) renderError('Error refreshing access token.');
     const response_user = await fetch(request_user);
