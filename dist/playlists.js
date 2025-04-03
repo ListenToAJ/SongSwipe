@@ -10,7 +10,6 @@ $(document).ready(async function () {
         headers: headers,
     });
     
-    access_token = null;
     if (checkAccessTokenExpiration()) access_token = refreshAccessToken();
     if (access_token == null) renderError('Error refreshing access token.');
     const response_user = await fetch(request_user);
@@ -46,6 +45,7 @@ $(document).ready(async function () {
         card.addEventListener('click', async () => {
             // For now just pull and display filtered playlist json.
             // Eventually will be refactored to go somewhere else
+            alert('Card clicked!');
             let playlist_url = new URL(`${API_URI}/playlist/build`);
             playlist_url.searchParams.set('playlist_id', playlist.id);
             
