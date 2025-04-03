@@ -1,3 +1,4 @@
+
 $(document).ready(async function () {
     let access_token = localStorage.getItem('access_token');
     
@@ -45,10 +46,9 @@ $(document).ready(async function () {
         card.addEventListener('click', async () => {
             // For now just pull and display filtered playlist json.
             // Eventually will be refactored to go somewhere else
-            alert('Card clicked!');
             let playlist_url = new URL(`${API_URI}/playlist/build`);
             playlist_url.searchParams.set('playlist_id', playlist.id);
-            
+            alert('Card clicked!' + playlist.id);
             const playlist_request = new Request(playlist_url.toString(), {
                 method: 'GET',
                 headers: headers,
@@ -58,7 +58,8 @@ $(document).ready(async function () {
             if (access_token == null) renderError('Error refreshing access token.');
             const response_playlist = await fetch(playlist_request);
             const data_playlist = await response_playlist.json();
-            console.log(data_playlist) 
+            console.log(data_playlist)
+            window.location.href = "mockselect.html?" + encodeURIComponent(playlist.id);
         })
 
         return card;
