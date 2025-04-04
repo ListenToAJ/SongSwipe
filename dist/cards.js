@@ -1,12 +1,46 @@
 $(document).ready(async function () {
-    alert("Welcome to the SongSwipe demo!\n\nShown here is the swiping interface loaded with a existing Spotify playlist.\n\nSwipe right on songs you like\nSwipe left on ones you don't!")
-    //! TEMPORARY TESTING SONG LOADING
+    // alert("Welcome to the SongSwipe demo!\n\nShown here is the swiping interface loaded with a existing Spotify playlist.\n\nSwipe right on songs you like\nSwipe left on ones you don't!")
+    // TEMPORARY TESTING SONG LOADING
+    // try {
+    //     const response = await fetch("whitegirlbangers.json");
+    //     const data = await response.json();
+    //     songs = data.tracks.sort(() => Math.random() - 0.5);  // Assuming the JSON has a "songs" key
+    // } catch (error) {
+    //     console.error("Error fetching the JSON file:", error);
+    // }
+    let access_token = localStorage.getItem('access_token');
+    const headers = new Headers();
+    headers.set('Authorization', access_token);
+    headers.set('Access-Control-Allow-Origin', '*');
+
+    var songs = null;
     try {
-        const response = await fetch("whitegirlbangers.json");
+        const url = new URL(window.location.href);
+        const playlist_id = url.searchParams.get('playlist_id');
+        if (playlist_id == null) {
+            renderError('No Playilst Id Provided!');
+        }
+
+        if (checkAccessTokenExpiration()) access_token = refreshAccessToken();
+        if (access_token == null) renderError('Error refreshing access token.');
+
+        let playlist_url = new URL(`${API_URI}/playlist/build`);
+        playlist_url.searchParams.set('playlist_id', playlist_id);
+
+        const playlist_request = new Request(playlist_url.toString(), {
+            method: 'GET',
+            headers: headers,
+        })
+
+        const response = await fetch(playlist_request);
         const data = await response.json();
-        songs = data.tracks.sort(() => Math.random() - 0.5);  // Assuming the JSON has a "songs" key
+        songs = data.tracks.sort(() => Math.random() - 0.5);  
+
+        playlist_title = document.getElementById('playlist_title_variable');
+        playlist_title.innerHTML = data.name;
+
     } catch (error) {
-        console.error("Error fetching the JSON file:", error);
+        renderError(error);
     }
 
     /**

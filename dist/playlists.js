@@ -42,22 +42,12 @@ $(document).ready(async function () {
         card.appendChild(img);
         card.appendChild(title_text);
 
+        // Redirect to cards page
         card.addEventListener('click', async () => {
-            // For now just pull and display filtered playlist json.
-            // Eventually will be refactored to go somewhere else
-            let playlist_url = new URL(`${API_URI}/playlist/build`);
-            playlist_url.searchParams.set('playlist_id', playlist.id);
-            
-            const playlist_request = new Request(playlist_url.toString(), {
-                method: 'GET',
-                headers: headers,
-            })
+            let params = new URLSearchParams();
+            params.set('playlist_id', playlist.id);
 
-            if (checkAccessTokenExpiration()) access_token = refreshAccessToken();
-            if (access_token == null) renderError('Error refreshing access token.');
-            const response_playlist = await fetch(playlist_request);
-            const data_playlist = await response_playlist.json();
-            console.log(data_playlist) 
+            window.location.href = window.location.pathname.replace('playlists', 'cards') + `?${params.toString()}`;
         })
 
         return card;
