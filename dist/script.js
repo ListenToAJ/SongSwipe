@@ -1,9 +1,10 @@
 $(document).ready(async function () {
+    alert("Welcome to the SongSwipe demo!\n\nShown here is the swiping interface loaded with a existing Spotify playlist.\n\nSwipe right on songs you like\nSwipe left on ones you don't!")
     //! TEMPORARY TESTING SONG LOADING
     try {
-        const response = await fetch("songs.json");
+        const response = await fetch("whitegirlbangers.json");
         const data = await response.json();
-        songs = data.songs;  // Assuming the JSON has a "songs" key
+        songs = data.tracks.sort(() => Math.random() - 0.5);  // Assuming the JSON has a "songs" key
     } catch (error) {
         console.error("Error fetching the JSON file:", error);
     }
@@ -17,10 +18,19 @@ $(document).ready(async function () {
     function updateSongCard(song_index, card_id) {
         const card = $("#" + card_id);
         // Update div info
-        card.find(".song_info .bold_title").text(songs[song_index].name);
-        card.find(".song_info .subtitle").text(songs[song_index].artist);
-        card.find(".album").attr("src", songs[song_index].album_art);
+        card.find(".song_info .bold_title").text(truncateString(20, songs[song_index].name));
+        card.find(".song_info .subtitle").text(songs[song_index].artists[0]);
+        card.find(".album").attr("src", songs[song_index].album_cover_img_url);
         card.find(".song_num").text(song_index);
+    }
+
+    // max length of 24 for now
+    function truncateString(max_length, string) {
+        if (string.length > max_length){
+            return string.substring(0,max_length) + " . . ."
+        }
+        return string
+
     }
 
     songIndex = 0;
@@ -32,10 +42,10 @@ $(document).ready(async function () {
 
 
     //! Listener for reloading app for testing on mobile (REMOVE LATER)
-    $("#playlist_title").on("click touchstart", function (e) {
-        alert("Reloading...");
-        location.reload();
-    });
+    // $("#playlist_title").on("click touchstart", function (e) {
+    //     alert("Reloading...");
+    //     location.reload();
+    // });
 
 
     //! Swiping action listener and logic
@@ -201,7 +211,11 @@ $(document).ready(async function () {
 
                                 // Temporary population of final card
                                 //! IMPORTANT : THIS IS WHERE NEW SONGS NEED TO BE PLACED VIA API TO BE ADDED TO SWIPING ROTATION ! ! ! ! ! ! 
-                                songIndex = (songIndex + 1) % 6;
+                                songIndex = (songIndex + 1);
+                                if (songIndex >= songs.length){
+                                    alert("Thank you!\n\nYou have finished the demo, the page will now refresh!")
+                                    window.location.reload()
+                                }
                                 updateSongCard(songIndex, "last_song_card");
                                 completed_swipe = false;
                             });
