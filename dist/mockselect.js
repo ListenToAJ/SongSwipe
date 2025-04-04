@@ -15,29 +15,39 @@ function getIdFromUrl() {
     return null;
 }
 
-function getAccessToken() {
-    return localStorage.getItem('access_token');
-}
-
-
 $(document).ready(async function () {
+
+    //! TEMPORARY TESTING SONG LOADING
+    try {
+        const response = await fetch("whitegirlbangers.json");
+        const data = await response.json();
+        songs = data.tracks.sort(() => Math.random() - 0.5);  // Assuming the JSON has a "songs" key
+    } catch (error) {
+        console.error("Error fetching the JSON file:", error);
+    }
+
+    // Get Access token
+    let access_token = localStorage.getItem('access_token');
+
+    // Headers
+    const headers = new Headers();
+    headers.set('Authorization', access_token);
+    headers.set('Access-Control-Allow-Origin', '*');
+
+    // If access token is cooked, refresh it
+    if (checkAccessTokenExpiration()) access_token = refreshAccessToken();
+    if (access_token == null) renderError('Error refreshing access token.');
+
     try {
         // Get id from url
         const playlistId = getIdFromUrl();
+        alert(playlistId);
         // checks if theres an id
         if (!playlistId) {
             console.error("No playlist ID found in URL");
             return;
         }
-        // Get and validate access token
-        let access_token = getAccessToken();
-            
-        // Verify we have a valid token
-        if (access_token == null) {
-            console.error('Error refreshing access token.');
-            renderError('Authentication failed. Please log in again.');
-            return;
-        }
+
         // Fetch playlist data using fetchPlaylist function
         const { data, status } = await fetchPlaylist(access_token, playlistId);
         
