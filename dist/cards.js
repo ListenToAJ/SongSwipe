@@ -186,9 +186,10 @@ $(".song_restart").click(function() {
     playSong();
 });
 
-    song_player.addEventListener('ended', function() {
-        notPlaying();
-    });
+song_player.addEventListener('ended', function() {
+    notPlaying();
+});
+
     //! Listener for reloading app for testing on mobile (REMOVE LATER)
     // $("#playlist_title").on("click touchstart", function (e) {
     //     alert("Reloading...");
