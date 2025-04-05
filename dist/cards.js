@@ -81,8 +81,44 @@ $(document).ready(async function () {
     // Starts playing by default
     let isPlaying = true;
 
-    // Function to playSong
-    async function playSong(song_index) {
+    function playSong() {
+        song_player.play()
+            .then(() => {
+                $(".song_button").addClass('playing');
+                isPlaying = true;
+            })
+            .catch(error => {
+                // Use switch statement to handle different error types
+            switch (error.name) {
+                case 'NotSupportedError':
+                    console.error("The audio format is not supported by this browser:", error);
+                    alert("Audio Not Supported");
+                break;
+                
+                case 'AbortError':
+                    console.error("Playback was aborted:", error);
+                    alert("Playback was aborted :P");
+                break;
+                
+                case 'NotAllowedError':
+                    console.error("Playback not allowed (autoplay policy):", error);
+                    alert("Please interact with the page first to enable audio playback.");
+                break;
+                
+                default:
+                    // Handle any other errors
+                    console.error("Error playing audio:", error);
+                    alert("Audio Playback Error");
+                break;
+            }
+                // Reset UI state regardless of error type
+                $(".song_button").removeClass('playing');
+                isPlaying = false;
+            });
+    }
+
+    // Function to fetch URL to play songs
+    async function songPlayer(song_index) {
         // Current track for use
         let current_track_id = songs[song_index].track_id;
 
@@ -103,16 +139,10 @@ $(document).ready(async function () {
         // Play Song from URL
         song_player.src = data;
         song_player.load();
-        song_player.play().then(() => {
-            $(".song_button").addClass('playing');
-        })
-        .catch(error => {
-            console.error("Error playing audio:", error);
-            $(".song_button").removeClass('playing');
-        });
+        playSong();
     }
     // Plays song at the start
-    playSong(songIndex-2);
+    songPlayer(songIndex-2);
 
 // Play/pause toggle button
 $(".song_button").click(function() {
@@ -130,16 +160,12 @@ $(".song_button").click(function() {
         isPlaying = false;
     } else {
         // Currently paused, so play
-        song_player.play()
-            .then(() => {
-                $(".song_button").addClass('playing');
-            })
-            .catch(error => {
-                console.error("Error playing audio:", error);
-                $(".song_button").removeClass('playing');
-            });
-        isPlaying = true;
+        playSong();
     }
+});
+
+$(".back_button").click(function() {
+    window.location.href = "playlists.html";
 });
 
 // Restart Song Button aka start from 0
@@ -150,15 +176,7 @@ $(".song_restart").click(function() {
         return;
     }
     song_player.currentTime = 0;
-    song_player.play()
-        .then(() => {
-            $(".song_button").addClass('playing');
-        })
-        .catch(error => {
-            console.error("Error playing audio:", error);
-            $(".song_button").removeClass('playing');
-        });
-    isPlaying = true;
+    playSong();
 });
 
     song_player.addEventListener('ended', function() {
@@ -286,7 +304,7 @@ $(".song_restart").click(function() {
                     tracking = false;
                     completed_swipe = true;
                     // Plays new song after swipe
-                    playSong(songIndex-1);
+                    songPlayer(songIndex-1);
 
                     // Add transition for smooth animation
                     $("#song_card").css({

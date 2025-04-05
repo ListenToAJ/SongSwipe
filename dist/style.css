@@ -304,8 +304,8 @@ transform: translateX(200px) rotate(20deg);
 
 /* Common Button Styling */
 .button_container button {
-    width: 60px;
-    height: 60px;
+    width: 10vw;
+    height: 10vw;
     border-radius: 50%;
     border: 2px solid #FAF9F6;
     background-color: rgba(20, 25, 29, 0.8);
@@ -337,4 +337,41 @@ transform: translateX(200px) rotate(20deg);
 .song_restart::before {
     content: "⟳";
     font-size: 26px;
+}
+
+/* Go Back Button Styling */
+.back_button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 10vw;
+    height: 10vw;
+    border-radius: 50%;
+    border: 2px solid #FAF9F6;
+    background-color: rgba(20, 25, 29, 0.8);
+    color: #FAF9F6;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 300; /* Ensure it's above other elements */
+    font-size: 26px;
+}
+
+.back_button:hover {
+    transform: scale(1.1);
+    background-color: rgba(20, 25, 29, 1);
+}
+
+.back_button:active {
+    transform: scale(0.95);
+}
+
+/* Back arrow icon */
+.back_button::before {
+    content: "←";
+    font-size: 26px;
+    font-weight: bold;
 }
