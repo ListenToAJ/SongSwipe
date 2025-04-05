@@ -2,6 +2,46 @@ import { ERROR_RESPONSES, HttpMethod, StatusCodes } from "./util";
 
 const base_url = 'https://api.spotify.com/v1'
 
+// Interfaces to store data in a readable form
+export interface SpotifyImage {
+    height: number;
+    width: number;
+    url: string;
+}
+
+export interface SpotifyUser {
+    display_name: string;
+    external_urls: {
+        spotify: string;
+    };
+    href: string;
+    id: string;
+    type: string;
+    uri: string;
+}
+
+export interface SpotifyPlaylist {
+    collaborative: boolean;
+    description: string;
+    external_urls: {
+        spotify: string;
+    };
+    href: string;
+    id: string;
+    images: SpotifyImage[];
+    name: string;
+    owner: SpotifyUser;
+    primary_color: string | null;
+    public: boolean;
+    snapshot_id: string;
+    tracks: {
+        href: string;
+        total: number;
+    };
+    type: string;
+    uri: string;
+}
+
 /*
 * Create the request needed with specified endpoint. 
 * 
@@ -89,9 +129,13 @@ export async function fetchPlaylist(access_token: string, playlist_id: string) {
 
     const response = await fetch(request);
     const data = await checkResponse(response);
-    return { data: data, status: response.status };
+    return { data: data as SpotifyPlaylist, status: response.status };
 }
 
+// Helper function to export playlist data id
+export function getPlaylistId(playlistData: SpotifyPlaylist): string {
+    return playlistData.id;
+}
 /*
 * Fetch the tracks from a playlist with an offset. Calls the /playlists/{playlist_id}/tracks endpoint.
 * 
@@ -151,6 +195,8 @@ export async function buildPlaylist(access_token: string, playlist_id: string) {
                 tracks: track_list,
                 img_url: playlist.images[0].url,
             }, 
-             'status': StatusCodes.OK,
+            'status': StatusCodes.OK,
     };
 }
+
+// Kat's Edits

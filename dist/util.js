@@ -45,4 +45,26 @@ async function refreshAccessToken() {
         localStorage.setItem('token_expiration', secondsSinceEpoch + data.expires_in);
         return data.access_token;
     }
+    return null;
+}
+
+/*
+ * Replace the page HTML with an error message.
+ * 
+ * @param {string} message - the error message you wish to display 
+ */
+function renderError(error_message) {
+    document.body.innerHTML = '';
+    let error_div = document.createElement('div');
+    error_div.id = 'error_div'
+
+    let header = document.createElement('p');
+    header.innerHTML = 'An Error Has Occured!'; // TODO: add fix instructions
+
+    let message = document.createElement('p');
+    message.innerHTML = error_message;
+
+    error_div.appendChild(header)
+    error_div.appendChild(message);
+    document.body.appendChild(error_div);
 }

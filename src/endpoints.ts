@@ -1,6 +1,7 @@
 import { ERROR_RESPONSES, generateRandomString, StatusCodes } from "./util";
 import { config } from 'dotenv';
 import { fetchPlaylist, fetchUserInfo, fetchUserPlaylists, buildPlaylist } from "./spotify-interactions";
+import { getSpotifyPreviewUrl } from "./spotify-preview";
 
 // Load .env with Spotify credentials & set constants for env secrets
 config();
@@ -207,4 +208,24 @@ export async function playlistBuild(req: any, res: any) {
     
     res.status(status);
     res.json(data);
+}
+/*
+* API endpoint to get a Spotify track preview URL
+* 
+* @param req - The HTTP request object
+* @param res - The HTTP response object
+*/
+export async function songPreview(req: any, res: any) {
+    const track_id = req.query.track_id?.toString() ?? "";
+    let data = undefined;
+    let status = StatusCodes.OK;
+
+    if (track_id !== "") {
+        const res = await getSpotifyPreviewUrl(track_id);
+        data = res;
+    } else {
+        data = ERROR_RESPONSES.NO_AUTH_OR_PARAM;
+        status = StatusCodes.BAD_REQUEST;
+    }
+    res.status(status).json(data);
 }
