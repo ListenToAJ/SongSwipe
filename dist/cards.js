@@ -103,7 +103,13 @@ $(document).ready(async function () {
         // Play Song from URL
         song_player.src = data;
         song_player.load();
-        song_player.play();
+        song_player.play().then(() => {
+            $(".song_button").addClass('playing');
+        })
+        .catch(error => {
+            console.error("Error playing audio:", error);
+            $(".song_button").removeClass('playing');
+        });
     }
     // Plays song at the start
     playSong(songIndex-2);
@@ -120,15 +126,17 @@ $(".song_button").click(function() {
     if (isPlaying) {
         // Currently playing, so pause
         song_player.pause();
+        $(".song_button").removeClass('playing');
         isPlaying = false;
     } else {
         // Currently paused, so play
         song_player.play()
             .then(() => {
-                // Play successful
+                $(".song_button").addClass('playing');
             })
             .catch(error => {
                 console.error("Error playing audio:", error);
+                $(".song_button").removeClass('playing');
             });
         isPlaying = true;
     }
@@ -142,7 +150,21 @@ $(".song_restart").click(function() {
         return;
     }
     song_player.currentTime = 0;
+    song_player.play()
+        .then(() => {
+            $(".song_button").addClass('playing');
+        })
+        .catch(error => {
+            console.error("Error playing audio:", error);
+            $(".song_button").removeClass('playing');
+        });
+    isPlaying = true;
 });
+
+    song_player.addEventListener('ended', function() {
+        $(".song_button").removeClass('playing');
+        isPlaying = false;
+    });
     //! Listener for reloading app for testing on mobile (REMOVE LATER)
     // $("#playlist_title").on("click touchstart", function (e) {
     //     alert("Reloading...");

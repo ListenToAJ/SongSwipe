@@ -323,14 +323,15 @@ transform: translateX(200px) rotate(20deg);
     background-color: rgba(20, 25, 29, 1);
 }
 
-.button_container button:active {
-    transform: scale(0.95);
-}
-
 /* Individual Button Icons */
 .song_button::before {
     content: "▶";
-    font-size: 24px;
+    font-size: 26px;
+}
+
+.song_button.playing::before {
+    content: "⏸";
+    font-size: 26px;
 }
 
 .song_restart::before {
