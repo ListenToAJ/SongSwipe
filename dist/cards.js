@@ -1,4 +1,5 @@
 $(document).ready(async function () {
+    // MAKE BUTTON PRETTY
     // alert("Welcome to the SongSwipe demo!\n\nShown here is the swiping interface loaded with a existing Spotify playlist.\n\nSwipe right on songs you like\nSwipe left on ones you don't!")
     // TEMPORARY TESTING SONG LOADING
     // try {
@@ -74,6 +75,57 @@ $(document).ready(async function () {
     songIndex += 1;
     updateSongCard(songIndex, "last_song_card");
 
+    // Current track for use
+    let current_track_id = songs[songIndex-2].track_id;
+
+    // Set API URL
+    let songPreview_url = new URL(`${API_URI}/song`);
+    songPreview_url.searchParams.set('track_id', current_track_id);
+
+    // API Request
+    const songPreview_request = new Request(songPreview_url.toString(), {
+        method: 'GET',
+        headers: headers,
+    })
+
+    // Fetch MP3 URL
+    const response = await fetch(songPreview_request);
+    const data = await response.json();
+
+    // Play Song from URL
+
+    const song_player = new Audio(data);
+    song_player.play();
+
+    // Variable to control if playing
+    let isPlaying = false;
+// Create a global variable to track playing state
+
+// Play/pause toggle button
+$(".song_button").click(function() {
+    // Make sure we have a song player
+    if (!song_player) {
+        console.error("No audio player available");
+        return;
+    }
+    
+    // Toggle play state
+    if (isPlaying) {
+        // Currently playing, so pause
+        song_player.pause();
+        isPlaying = false;
+    } else {
+        // Currently paused, so play
+        song_player.play()
+            .then(() => {
+                // Play successful
+            })
+            .catch(error => {
+                console.error("Error playing audio:", error);
+            });
+        isPlaying = true;
+    }
+});
 
     //! Listener for reloading app for testing on mobile (REMOVE LATER)
     // $("#playlist_title").on("click touchstart", function (e) {
