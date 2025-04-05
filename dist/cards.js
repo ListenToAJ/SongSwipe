@@ -14,7 +14,20 @@ $(document).ready(async function () {
     headers.set('Authorization', access_token);
     headers.set('Access-Control-Allow-Origin', '*');
 
+    // Testing tracker accuracy
+    let leftSwipe = 0;
+    let rightSwipe = 0;
+    // Song_player object
+        // Empty song file instead of null
+    let song_player = new Audio("https://bigsoundbank.com/UPLOAD/mp3/0917.mp3");
+    // Variable to control if playing
+    let isPlaying = true;
+    // Starts playing by default
+    playSong();
+    
+    // Get Specific Playlist
     var songs = null;
+    let playlist_name = null
     try {
         const url = new URL(window.location.href);
         const playlist_id = url.searchParams.get('playlist_id');
@@ -38,56 +51,61 @@ $(document).ready(async function () {
         songs = data.tracks.sort(() => Math.random() - 0.5);  
 
         playlist_title = document.getElementById('playlist_title_variable');
-        playlist_title.innerHTML = data.name;
+        // Save the name of the playlist for now
+        playlist_name = data.name;
 
     } catch (error) {
         renderError(error);
     }
 
-    /**
-     * Updates the song information on a specific card element.
-     * 
-     * @param {number} song_index - The index of the song in the `songs` array.
-     * @param {string} card_id - The ID of the card to update (e.g., "song_card", "next_song_card", "last_song_card").
-     */
-    function updateSongCard(song_index, card_id) {
-        const card = $("#" + card_id);
-        // Update div info
-        card.find(".song_info .bold_title").text(truncateString(20, songs[song_index].name));
-        card.find(".song_info .subtitle").text(songs[song_index].artists[0]);
-        card.find(".album").attr("src", songs[song_index].album_cover_img_url);
-        card.find(".song_num").text(song_index);
+    // wait to get all the URLS
+    let song_url = await getURL();
+
+    // Array to remove tracks
+    let remove_tracks = [];
+
+    // index to keep track of the tracks
+    track_index = 0;
+
+    // Once loaded, put playlist name
+    playlist_title.innerHTML = playlist_name;
+
+    // Make an array to hold URLS
+    async function getURL() {
+        // Declare empty
+        let song_url = [];
+        for (let i = 0; i < songs.length; i++) {
+                // Use songs[i] to access the current song, not song
+                let songPreview_url = new URL(`${API_URI}/song`);
+                songPreview_url.searchParams.set('track_id', songs[i].track_id);
+                
+                // API Request
+                const songPreview_request = new Request(songPreview_url.toString(), {
+                    method: 'GET',
+                    headers: headers,
+                });
+                
+                try {
+                    // Fetch MP3 URL
+                    const response = await fetch(songPreview_request);
+                    const data = await response.json();
+                    song_url.push(data);
+                    playlist_title.innerHTML = (`Loading ... ${i+1}/${songs.length}`);
+                } catch (error) {
+                    console.error(`Error fetching song ${i+1}:`, error);
+                }
+            }
+            return song_url;
     }
 
-    // max length of 24 for now
-    function truncateString(max_length, string) {
-        if (string.length > max_length){
-            return string.substring(0,max_length) + " . . ."
-        }
-        return string
-
-    }
-
-    songIndex = 0;
-    updateSongCard(songIndex, "song_card");
-    songIndex += 1;
-    updateSongCard(songIndex, "next_song_card");
-    songIndex += 1;
-    updateSongCard(songIndex, "last_song_card");
-
-    // Song Player Object
-    // Empty song file instead of null
-    let song_player = new Audio("https://bigsoundbank.com/UPLOAD/mp3/0917.mp3");
-    // Variable to control if playing
-    // Starts playing by default
-    let isPlaying = true;
-
+    // Refactor function to stop playing
     function notPlaying() {
         // Reset UI state regardless of error type
         $(".song_button").removeClass('playing');
         isPlaying = false;
     }
 
+    // Refactor to play songs
     function playSong() {
         song_player.play()
             .then(() => {
@@ -98,6 +116,7 @@ $(document).ready(async function () {
                 // Use switch statement to handle different error types
             switch (error.name) {
                 case 'NotSupportedError':
+                    console.log(song_url[track_index]);
                     console.error("The audio format is not supported by this browser:", error);
                     alert("Audio Not Supported");
                 break;
@@ -122,35 +141,58 @@ $(document).ready(async function () {
             });
     }
 
-    // Function to fetch URL to play songs
-    async function songPlayer(song_index) {
-        // Current track for use
-        let current_track_id = songs[song_index].track_id;
-        // Set API URL
-        let songPreview_url = new URL(`${API_URI}/song`);
-        songPreview_url.searchParams.set('track_id', current_track_id);
-
-        // API Request
-        const songPreview_request = new Request(songPreview_url.toString(), {
-            method: 'GET',
-            headers: headers,
-        })
-
-        // Fetch MP3 URL
-        const response = await fetch(songPreview_request);
-        const data = await response.json();
-
-        // Play Song from URL
-        if (data) {
-            song_player.src = data;
-            song_player.load();
-            playSong();
+    // function to play the song at a specific index
+    function songPlayer(index) {
+        // Make sure it is a valid index
+        if (index >= 0 && index < song_url.length) {
+            const this_song = song_url[index];
+            
+            // Make sure song_player is defined and is an audio element
+            if (song_player && song_player instanceof HTMLAudioElement) {
+                song_player.src = this_song;
+                song_player.load();
+                playSong();
+            } else {
+                console.error("song_player is not properly defined");
+            }
+        // Error handling for when its bad
         } else {
-            notPlaying();
+            alert("Error with indexing in song_player");
         }
     }
-    // Plays song at the start
-    songPlayer(songIndex-2);
+
+    // Plays song at the start of the tracklist
+    songPlayer(track_index);
+    /**
+     * Updates the song information on a specific card element.
+     * 
+     * @param {number} song_index - The index of the song in the `songs` array.
+     * @param {string} card_id - The ID of the card to update (e.g., "song_card", "next_song_card", "last_song_card").
+     */
+    function updateSongCard(song_index, card_id) {
+        const card = $("#" + card_id);
+        // Update div info
+        card.find(".song_info .bold_title").text(truncateString(20, songs[song_index].name));
+        card.find(".song_info .subtitle").text(songs[song_index].artists[0]);
+        card.find(".album").attr("src", songs[song_index].album_cover_img_url);
+        // Have it show from 1  - Last song in playlist for people reading
+        card.find(".song_num").text(song_index + 1);
+    }
+
+    // max length of 24 for now
+    function truncateString(max_length, string) {
+        if (string.length > max_length){
+            return string.substring(0,max_length) + " . . ."
+        }
+        return string
+    }
+
+    songIndex = 0;
+    updateSongCard(songIndex, "song_card");
+    songIndex += 1;
+    updateSongCard(songIndex, "next_song_card");
+    songIndex += 1;
+    updateSongCard(songIndex, "last_song_card");
 
 // Play/pause toggle button
 $(".song_button").click(function() {
@@ -307,11 +349,18 @@ song_player.addEventListener('ended', function() {
 
                 // If the song has been completed_swipe enough to declare it left or right swipe
                 if (swipe_details.distance > DISTANCE_TO_SWIPE) {
-                    console.log(`Swiped ${swipe_details.direction === -1 ? "Left" : swipe_details.direction === 1 ? "Right" : "Unknown"}!`);
+                    if (swipe_details.direction === -1) {
+                        remove_tracks.push(songs[track_index].track_id);
+                        leftSwipe += 1;
+                    }
+                    if (swipe_details.direction === 1) {
+                        right +=1;
+                    }
                     tracking = false;
                     completed_swipe = true;
                     // Plays new song after swipe
-                    songPlayer(songIndex-1);
+                    track_index += 1;
+                    songPlayer(track_index);
 
                     // Add transition for smooth animation
                     $("#song_card").css({
@@ -363,7 +412,9 @@ song_player.addEventListener('ended', function() {
                                 // Temporary population of final card
                                 //! IMPORTANT : THIS IS WHERE NEW SONGS NEED TO BE PLACED VIA API TO BE ADDED TO SWIPING ROTATION ! ! ! ! ! ! 
                                 songIndex = (songIndex + 1);
-                                if (songIndex >= songs.length){
+                                if (songIndex > songs.length){
+                                    // Save remove_tracks to local storage
+                                    console.log(remove_tracks + "\n" + leftSwipe + "\n" + rightSwipe);
                                     alert("Thank you!\n\nYou have finished the demo, the page will now refresh!")
                                     window.location.reload()
                                 }
