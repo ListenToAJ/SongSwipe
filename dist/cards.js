@@ -75,31 +75,38 @@ $(document).ready(async function () {
     songIndex += 1;
     updateSongCard(songIndex, "last_song_card");
 
-    // Current track for use
-    let current_track_id = songs[songIndex-2].track_id;
-
-    // Set API URL
-    let songPreview_url = new URL(`${API_URI}/song`);
-    songPreview_url.searchParams.set('track_id', current_track_id);
-
-    // API Request
-    const songPreview_request = new Request(songPreview_url.toString(), {
-        method: 'GET',
-        headers: headers,
-    })
-
-    // Fetch MP3 URL
-    const response = await fetch(songPreview_request);
-    const data = await response.json();
-
-    // Play Song from URL
-
-    const song_player = new Audio(data);
-    song_player.play();
-
+    // Song Player Object
+    let song_player = new Audio(null);
     // Variable to control if playing
-    let isPlaying = false;
-// Create a global variable to track playing state
+    // Starts playing by default
+    let isPlaying = true;
+
+    // Function to playSong
+    async function playSong(song_index) {
+        // Current track for use
+        let current_track_id = songs[song_index].track_id;
+
+        // Set API URL
+        let songPreview_url = new URL(`${API_URI}/song`);
+        songPreview_url.searchParams.set('track_id', current_track_id);
+
+        // API Request
+        const songPreview_request = new Request(songPreview_url.toString(), {
+            method: 'GET',
+            headers: headers,
+        })
+
+        // Fetch MP3 URL
+        const response = await fetch(songPreview_request);
+        const data = await response.json();
+
+        // Play Song from URL
+        song_player.src = data;
+        song_player.load();
+        song_player.play();
+    }
+    // Plays song at the start
+    playSong(songIndex-2);
 
 // Play/pause toggle button
 $(".song_button").click(function() {
@@ -127,6 +134,15 @@ $(".song_button").click(function() {
     }
 });
 
+// Restart Song Button aka start from 0
+$(".song_restart").click(function() {
+    // Make sure we have a song player
+    if (!song_player) {
+        console.error("No audio player available");
+        return;
+    }
+    song_player.currentTime = 0;
+});
     //! Listener for reloading app for testing on mobile (REMOVE LATER)
     // $("#playlist_title").on("click touchstart", function (e) {
     //     alert("Reloading...");
@@ -247,6 +263,8 @@ $(".song_button").click(function() {
                     console.log(`Swiped ${swipe_details.direction === -1 ? "Left" : swipe_details.direction === 1 ? "Right" : "Unknown"}!`);
                     tracking = false;
                     completed_swipe = true;
+                    // Plays new song after swipe
+                    playSong(songIndex-1);
 
                     // Add transition for smooth animation
                     $("#song_card").css({
