@@ -286,3 +286,54 @@ transform: translateX(200px) rotate(20deg);
     font-size: 24px;
     width: 100vw;
 }
+
+/* Button Container Styling */
+.button_container {
+    position: fixed;
+    bottom: 5vh;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 80vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5vw;
+    z-index: 200;
+}
+
+/* Common Button Styling */
+.button_container button {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid #FAF9F6;
+    background-color: rgba(20, 25, 29, 0.8);
+    color: #FAF9F6;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.button_container button:hover {
+    transform: scale(1.1);
+    background-color: rgba(20, 25, 29, 1);
+}
+
+.button_container button:active {
+    transform: scale(0.95);
+}
+
+/* Individual Button Icons */
+.song_button::before {
+    content: "▶";
+    font-size: 24px;
+}
+
+.song_restart::before {
+    content: "⟳";
+    font-size: 26px;
+}
