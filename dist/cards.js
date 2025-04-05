@@ -82,6 +82,12 @@ $(document).ready(async function () {
     // Starts playing by default
     let isPlaying = true;
 
+    function notPlaying() {
+        // Reset UI state regardless of error type
+        $(".song_button").removeClass('playing');
+        isPlaying = false;
+    }
+
     function playSong() {
         song_player.play()
             .then(() => {
@@ -112,9 +118,7 @@ $(document).ready(async function () {
                     alert("Audio Playback Error");
                 break;
             }
-                // Reset UI state regardless of error type
-                $(".song_button").removeClass('playing');
-                isPlaying = false;
+                notPlaying();
             });
     }
 
@@ -135,10 +139,15 @@ $(document).ready(async function () {
         // Fetch MP3 URL
         const response = await fetch(songPreview_request);
         const data = await response.json();
+
         // Play Song from URL
-        song_player.src = data;
-        song_player.load();
-        playSong();
+        if (data) {
+            song_player.src = data;
+            song_player.load();
+            playSong();
+        } else {
+            notPlaying();
+        }
     }
     // Plays song at the start
     songPlayer(songIndex-2);
@@ -155,8 +164,7 @@ $(".song_button").click(function() {
     if (isPlaying) {
         // Currently playing, so pause
         song_player.pause();
-        $(".song_button").removeClass('playing');
-        isPlaying = false;
+        notPlaying();
     } else {
         // Currently paused, so play
         playSong();
@@ -179,8 +187,7 @@ $(".song_restart").click(function() {
 });
 
     song_player.addEventListener('ended', function() {
-        $(".song_button").removeClass('playing');
-        isPlaying = false;
+        notPlaying();
     });
     //! Listener for reloading app for testing on mobile (REMOVE LATER)
     // $("#playlist_title").on("click touchstart", function (e) {
