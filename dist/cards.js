@@ -76,7 +76,8 @@ $(document).ready(async function () {
     updateSongCard(songIndex, "last_song_card");
 
     // Song Player Object
-    let song_player = new Audio(null);
+    // Empty song file instead of null
+    let song_player = new Audio("https://bigsoundbank.com/UPLOAD/mp3/0917.mp3");
     // Variable to control if playing
     // Starts playing by default
     let isPlaying = true;
@@ -121,7 +122,6 @@ $(document).ready(async function () {
     async function songPlayer(song_index) {
         // Current track for use
         let current_track_id = songs[song_index].track_id;
-
         // Set API URL
         let songPreview_url = new URL(`${API_URI}/song`);
         songPreview_url.searchParams.set('track_id', current_track_id);
@@ -135,7 +135,6 @@ $(document).ready(async function () {
         // Fetch MP3 URL
         const response = await fetch(songPreview_request);
         const data = await response.json();
-
         // Play Song from URL
         song_player.src = data;
         song_player.load();
