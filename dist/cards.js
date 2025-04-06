@@ -28,10 +28,19 @@ $(document).ready(async function () {
     // Needed data for stuff
     let playlist_name = null
     let playlist_id = null;
+
     // Get User Data
     let user_id = await getUserId();
     let user = null;
     let user_status = 0;
+
+    // Array to keep track of tracks
+    let right_tracks = [];
+    let left_tracks = [];
+
+    // index to keep track of the tracks
+    track_index = 0;
+
     // Get playlist information from href
     try {
         const url = new URL(window.location.href);
@@ -77,6 +86,8 @@ $(document).ready(async function () {
             for (let i = 0; i < user.playlists.length; i++) {
                 if (user.playlists[i].playlist_id == playlist_id) {
                     user_status = 2;
+                    left_tracks = user.playlists[i].left_tracks;
+                    right_tracks = user.playlists[i].right_tracks;
                     break;
                 }
             }
@@ -85,17 +96,16 @@ $(document).ready(async function () {
         alert(error);
     }
 
+    // remove songs from the Songs array if there is any
+    if (right_tracks !== null){
+        reloadPlaylist(right_tracks, songs);
+    }
+    if (left_tracks !== null){
+        reloadPlaylist(left_tracks, songs);
+    }
+
     // wait to get all the URLS
     let song_url = await getURL();
-
-    // Array to keep track of tracks
-    let right_tracks = [];
-
-    // Array to remove tracks
-    let left_tracks = [];
-
-    // index to keep track of the tracks
-    track_index = 0;
 
     // Once loaded, put playlist name
     playlist_title.innerHTML = playlist_name;
@@ -244,15 +254,16 @@ $(".song_button").click(function() {
 });
 
 $(".back_button").click(function() {
+    save();
     window.location.href = "playlists.html";
 });
 
 // Saves the JSON
-$(".save_button").click(function() {
+function save() {
     const thisJSON = getJSON();
     localStorage.setItem(user_id, JSON.stringify(thisJSON));
     console.log(thisJSON);
-});
+}
 
 // Restart Song Button aka start from 0
 $(".song_restart").click(function() {
@@ -276,7 +287,7 @@ function getJSON() {
     thisPlaylist = getPlaylist();
 
     //make user Json based on status
-    if (user_status == 1) {
+    if (user_status === 1) {
         const username_id = {
             playlists: [thisPlaylist]
         };
@@ -311,7 +322,19 @@ function getPlaylist() {
     };
     return thisPlaylist;
 }
-    //Function to add new playlist save if its a different one
+
+function removePlaylist(){
+    // Finds location of playlist in the array
+    const playlist_index = user.playlists.findIndex(playlist => playlist.playlist_id === playlist_id);
+    // Removes that playlist because reviewing playlist is over
+    user.playlists.splice(playlist_index, 1);
+
+    // If theres no more playlists saved, delete local record
+    if (user.playlists.length === 0) {
+        localStorage.removeItem(user_id);
+    }
+    save();
+}
 
 // Get UserID
 async function getUserId() {
@@ -325,6 +348,19 @@ async function getUserId() {
     return data_user.id;
 }
 
+function reloadPlaylist(reference, target) {
+    for (let x = 0; x < reference.length; x++) {
+        const song_index = target.findIndex(target => target.track_id === reference[x]);
+        
+        // Confirm index is found
+        if (song_index !== -1) {
+        // remove 'seen' tracks from current playlist to simulate where you last left off
+            target.splice(song_index, 1);
+        } else {
+            alert("Cannot find Reference or Target")
+        }
+    }
+}
     //! Listener for reloading app for testing on mobile (REMOVE LATER)
     // $("#playlist_title").on("click touchstart", function (e) {
     //     alert("Reloading...");
@@ -507,6 +543,7 @@ async function getUserId() {
                                 if (songIndex > songs.length){
                                     // Save remove_tracks to local storage
                                     console.log(left_tracks.length + " " + right_tracks.length);
+                                    removePlaylist();
                                     alert("Thank you!\n\nYou have finished the demo, the page will now refresh!")
                                     window.location.reload()
                                 }
