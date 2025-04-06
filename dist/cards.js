@@ -14,9 +14,6 @@ $(document).ready(async function () {
     headers.set('Authorization', access_token);
     headers.set('Access-Control-Allow-Origin', '*');
 
-    // Testing tracker accuracy
-    let leftSwipe = 0;
-    let rightSwipe = 0;
     // Song_player object
         // Empty song file instead of null
     let song_player = new Audio("https://bigsoundbank.com/UPLOAD/mp3/0917.mp3");
@@ -27,10 +24,19 @@ $(document).ready(async function () {
     
     // Get Specific Playlist
     var songs = null;
+
+    // Needed data for stuff
     let playlist_name = null
+    let playlist_id = null;
+    let user_id = null;
+    let username = null;
+    // Get User Data
+    await getUser();
+
+    // Get playlist information from href
     try {
         const url = new URL(window.location.href);
-        const playlist_id = url.searchParams.get('playlist_id');
+        playlist_id = url.searchParams.get('playlist_id');
         if (playlist_id == null) {
             renderError('No Playilst Id Provided!');
         }
@@ -61,8 +67,11 @@ $(document).ready(async function () {
     // wait to get all the URLS
     let song_url = await getURL();
 
+    // Array to keep track of tracks
+    let right_tracks = [];
+
     // Array to remove tracks
-    let remove_tracks = [];
+    let left_tracks = [];
 
     // index to keep track of the tracks
     track_index = 0;
@@ -217,6 +226,13 @@ $(".back_button").click(function() {
     window.location.href = "playlists.html";
 });
 
+// Saves the JSON
+$(".save_button").click(function() {
+    const thisJSON = getJSON();
+    localStorage.setItem(username, thisJSON);
+    console.log(thisJSON);
+});
+
 // Restart Song Button aka start from 0
 $(".song_restart").click(function() {
     // Make sure we have a song player
@@ -231,6 +247,38 @@ $(".song_restart").click(function() {
 song_player.addEventListener('ended', function() {
     notPlaying();
 });
+
+// Make save JSON
+function getJSON() {
+    // make playlist object
+    const thisPlaylist = {
+        playlist_id: playlist_id,
+        left_tracks: left_tracks,
+        right_tracks: right_tracks,
+        index: track_index
+    };
+    
+    //make user Json
+    const username_id = {
+        user_id: user_id,
+        playlist: thisPlaylist
+    };
+
+    return username_id;
+}
+
+// Get UserID
+async function getUser() {
+    const request_user = new Request(`${API_URI}/user`, {
+        method: 'GET',
+        headers: headers,
+    });
+
+    const response_user = await fetch(request_user);
+    const data_user = await response_user.json();
+    user_id = data_user.id;
+    username = data_user.display_name;
+}
 
     //! Listener for reloading app for testing on mobile (REMOVE LATER)
     // $("#playlist_title").on("click touchstart", function (e) {
@@ -350,11 +398,10 @@ song_player.addEventListener('ended', function() {
                 // If the song has been completed_swipe enough to declare it left or right swipe
                 if (swipe_details.distance > DISTANCE_TO_SWIPE) {
                     if (swipe_details.direction === -1) {
-                        remove_tracks.push(songs[track_index].track_id);
-                        leftSwipe += 1;
+                        left_tracks.push(songs[track_index].track_id);
                     }
                     if (swipe_details.direction === 1) {
-                        right +=1;
+                        right_tracks.push(songs[track_index].track_id);
                     }
                     tracking = false;
                     completed_swipe = true;
@@ -414,7 +461,7 @@ song_player.addEventListener('ended', function() {
                                 songIndex = (songIndex + 1);
                                 if (songIndex > songs.length){
                                     // Save remove_tracks to local storage
-                                    console.log(remove_tracks + "\n" + leftSwipe + "\n" + rightSwipe);
+                                    console.log(left_tracks.length + " " + right_tracks.length);
                                     alert("Thank you!\n\nYou have finished the demo, the page will now refresh!")
                                     window.location.reload()
                                 }
