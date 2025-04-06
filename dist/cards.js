@@ -28,11 +28,10 @@ $(document).ready(async function () {
     // Needed data for stuff
     let playlist_name = null
     let playlist_id = null;
-    let user_id = null;
-    let username = null;
     // Get User Data
-    await getUser();
-
+    let user_id = await getUserId();
+    let user = null;
+    let user_status = 0;
     // Get playlist information from href
     try {
         const url = new URL(window.location.href);
@@ -62,6 +61,28 @@ $(document).ready(async function () {
 
     } catch (error) {
         renderError(error);
+    }
+
+    // Read Local Storage first before loading songs
+    try {
+        user = JSON.parse(localStorage.getItem(user_id));
+        if (user === null) {
+            // new person hehe
+            user_status = 1;
+        } else {
+            // declare user status
+            user_status = 3;
+            // current user's playlist if its the same one
+            console.log(user);
+            for (let i = 0; i < user.playlists.length; i++) {
+                if (user.playlists[i].playlist_id == playlist_id) {
+                    user_status = 2;
+                    break;
+                }
+            }
+        }
+    } catch (error) {
+        alert(error);
     }
 
     // wait to get all the URLS
@@ -229,7 +250,7 @@ $(".back_button").click(function() {
 // Saves the JSON
 $(".save_button").click(function() {
     const thisJSON = getJSON();
-    localStorage.setItem(username, thisJSON);
+    localStorage.setItem(user_id, JSON.stringify(thisJSON));
     console.log(thisJSON);
 });
 
@@ -249,26 +270,51 @@ song_player.addEventListener('ended', function() {
 });
 
 // Make save JSON
+    // Function for when there is a new user so this is there new playlist addition
 function getJSON() {
     // make playlist object
+    thisPlaylist = getPlaylist();
+
+    //make user Json based on status
+    if (user_status == 1) {
+        const username_id = {
+            playlists: [thisPlaylist]
+        };
+        return username_id;
+    } else if (user_status === 3) { // User is working on new playlist
+        // Make the object an array first
+        user.playlists.push(thisPlaylist);
+        return user;
+    } else if (user_status === 2) {
+        // find playlist index in the array
+        const playlist_index = user.playlists.findIndex(playlist => playlist.playlist_id === playlist_id);
+        
+        // Confirm index is found
+        if (playlist_index !== -1) {
+        // remove recent save
+            user.playlists.splice(playlist_index, 1);
+            // push new save in
+            user.playlists.push(thisPlaylist);
+            return user;
+        } else {
+            alert("Cannot find playlist")
+        }
+    }
+}
+
+function getPlaylist() {
     const thisPlaylist = {
         playlist_id: playlist_id,
         left_tracks: left_tracks,
         right_tracks: right_tracks,
         index: track_index
     };
-    
-    //make user Json
-    const username_id = {
-        user_id: user_id,
-        playlist: thisPlaylist
-    };
-
-    return username_id;
+    return thisPlaylist;
 }
+    //Function to add new playlist save if its a different one
 
 // Get UserID
-async function getUser() {
+async function getUserId() {
     const request_user = new Request(`${API_URI}/user`, {
         method: 'GET',
         headers: headers,
@@ -276,8 +322,7 @@ async function getUser() {
 
     const response_user = await fetch(request_user);
     const data_user = await response_user.json();
-    user_id = data_user.id;
-    username = data_user.display_name;
+    return data_user.id;
 }
 
     //! Listener for reloading app for testing on mobile (REMOVE LATER)
