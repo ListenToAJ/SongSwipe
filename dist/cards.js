@@ -323,17 +323,29 @@ function getPlaylist() {
     return thisPlaylist;
 }
 
-function removePlaylist(){
+function removePlaylist() {
+    if (user_status === 1) {
+        // Do NOT SAVE
+        return;
+    }
+    // If user was working on a playlist, remove it from local storage as they are done
     // Finds location of playlist in the array
     const playlist_index = user.playlists.findIndex(playlist => playlist.playlist_id === playlist_id);
     // Removes that playlist because reviewing playlist is over
-    user.playlists.splice(playlist_index, 1);
-
-    // If theres no more playlists saved, delete local record
-    if (user.playlists.length === 0) {
-        localStorage.removeItem(user_id);
+    if (playlist_index !== -1) {
+        // remove playlist
+            user.playlists.splice(playlist_index, 1);
+            // If theres no more playlists saved, delete local record
+            if (user.playlists.length === 0) {
+                localStorage.removeItem(user_id);
+            } else {
+                // Update the user data in localStorage
+                localStorage.setItem(user_id, JSON.stringify(user));
+            }
+    } else {
+        console.log("Cannot find playlist when removing");
     }
-    save();
+    
 }
 
 // Get UserID
@@ -484,11 +496,14 @@ function reloadPlaylist(reference, target) {
                     if (swipe_details.direction === 1) {
                         right_tracks.push(songs[track_index].track_id);
                     }
-                    tracking = false;
-                    completed_swipe = true;
                     // Plays new song after swipe
                     track_index += 1;
-                    songPlayer(track_index);
+                    if (track_index < song_url.length) {
+                        songPlayer(track_index);
+                    }
+
+                    tracking = false;
+                    completed_swipe = true;
 
                     // Add transition for smooth animation
                     $("#song_card").css({
@@ -539,13 +554,15 @@ function reloadPlaylist(reference, target) {
 
                                 // Temporary population of final card
                                 //! IMPORTANT : THIS IS WHERE NEW SONGS NEED TO BE PLACED VIA API TO BE ADDED TO SWIPING ROTATION ! ! ! ! ! ! 
-                                songIndex = (songIndex + 1);
-                                if (songIndex > songs.length){
-                                    // Save remove_tracks to local storage
-                                    console.log(left_tracks.length + " " + right_tracks.length);
+                                if (songIndex < song_url.length - 1) {
+                                    songIndex  += 1;
+                                    console.log(track_index);
+                                }
+                                if (track_index === song_url.length) {
+                                    // Save the playlist to local storage
                                     removePlaylist();
-                                    alert("Thank you!\n\nYou have finished the demo, the page will now refresh!")
-                                    window.location.reload()
+                                    alert("Thank you!\n\nYou have finished the demo, the page will now refresh!");
+                                    window.location.reload();
                                 }
                                 updateSongCard(songIndex, "last_song_card");
                                 completed_swipe = false;
