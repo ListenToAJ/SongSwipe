@@ -73,6 +73,7 @@ body{
     background-size: cover;  /* Ensures the image covers the whole screen */
     background-position: center; /* Centers the image */
     background-repeat: no-repeat; /* Prevents tiling */
+    overscroll-behavior-x: none;
 }
 
 /* Header Styling */
@@ -374,4 +375,54 @@ transform: translateX(200px) rotate(20deg);
     content: "←";
     font-size: 26px;
     font-weight: bold;
+}
+
+/* LANDING PAGEEE */
+
+#landing_header{
+    width: 100vw;
+    height: 15vh;
+    line-height: 15vh;
+    position: relative;
+    color: white;
+    font-size: 5vh;
+    text-align: center;
+}
+
+#landing_text{
+    color: rgb(196, 196, 196);
+    text-align: center;
+    font-size: 2.3vh;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+#login{
+    position: fixed;
+    left: 0px;
+    right: 0px;
+    margin: auto;
+    width: 70vw;
+    height: 10vh;
+    font-size: 2.5vh;
+    background-color: black;
+    color: white;
+
+    background-color: #1db954; /* Blue background color */
+    color: #191414; /* White text color */
+    padding: 10px 20px; /* Adjust padding for size */
+    border: 2px solid #1db954; /* Blue border */
+    border-radius: 5px; /* Border radius property to add rounded corners */
+    cursor: pointer; /* Changes cursor to pointer when button is hovered */
+    bottom: 5vh;
+}
+
+#gif_container{
+    background: magenta;
+    height: 55vh;
+    width: 90vw;
+    margin: auto;
+    position: absolute;
+    left: 0px;
+    right: 0px;
 }
