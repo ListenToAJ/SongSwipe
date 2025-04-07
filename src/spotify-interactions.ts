@@ -199,4 +199,36 @@ export async function buildPlaylist(access_token: string, playlist_id: string) {
     };
 }
 
-// Kat's Edits
+/*
+* Remove songs from a spotify playlist 
+* See: https://developer.spotify.com/documentation/web-api/reference/remove-tracks-playlist
+* 
+* @param {string} bearer - the user's bearer token needed here because the playlist may be private.
+* @param {string} playlist_id - the id of the playlist you wish to filter.
+* @param {list<string>} tracks - List of song ids to be removed.
+* @return {number} the status code of operation
+*/
+export async function removeSongsFromPlaylist(access_token:string, playlist_id: string, tracks: Array<string>) {
+    const request = createRequest(`/playlists/${playlist_id}/tracks`, access_token, HttpMethod.DELETE)
+    request.headers.set('Content-Type', 'application/json');
+
+    while (tracks.length != 0) {
+        let to_remove: any = { 'tracks': [] }
+        tracks.splice(0, 100).map((id, index) => {
+            to_remove.tracks.push({ 'uri': `spotify:track:${id}` });
+        });
+        console.log(to_remove);
+        
+        const delete_request = new Request(request, { body: JSON.stringify(to_remove) });
+        const response = await fetch(delete_request);
+        const data = await checkResponse(response);
+        // TODO: add error checking to this
+    }
+    return { data: {'succes': 'deleted tracks successfully'}, status: 200 };
+    
+    // Steps
+    // Compile 100 songs with indicator on where left off if > 100
+    // Make interaction
+    // repeat if there is more songs
+    // return status of operation
+}

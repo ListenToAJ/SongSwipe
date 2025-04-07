@@ -1,25 +1,28 @@
 import express, { Router } from 'express'
 import serverless from 'serverless-http'
 import cors from 'cors';
-import { authCallback, authLogin, authRefresh, playlistBuild, playlistData, userData, userPlaylists, songPreview } from './endpoints';
+import { authCallback, authLogin, authRefresh, playlistBuild, playlistData, userData, userPlaylists, songPreview, songRemove } from './endpoints';
 
 const app = express();
 const router = Router();
 
 app.use(cors());
+app.use(express.json());
 
 // Define GET routes
-// Authorize Routes
+// Authorization endpoints
 router.get('/auth/login', authLogin);
 router.get('/auth/callback', authCallback);
 router.get('/auth/refresh', authRefresh);
-// Spotify User stuff
+// Spotify User endpoints
 router.get('/user', userData);
 router.get('/user/playlists', userPlaylists);
+// Spotify Playlist endpoints
 router.get('/playlist', playlistData);
 router.get('/playlist/build', playlistBuild);
-// Preview Stuff
+// Song related endpoints
 router.get('/song', songPreview);
+router.delete('/song/remove', songRemove);
 
 // Netlify API stuff
 app.use("/.netlify/functions/api", router);

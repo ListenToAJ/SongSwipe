@@ -1,6 +1,6 @@
 import { ERROR_RESPONSES, generateRandomString, StatusCodes } from "./util";
 import { config } from 'dotenv';
-import { fetchPlaylist, fetchUserInfo, fetchUserPlaylists, buildPlaylist } from "./spotify-interactions";
+import { fetchPlaylist, fetchUserInfo, fetchUserPlaylists, buildPlaylist, removeSongsFromPlaylist } from "./spotify-interactions";
 import { getSpotifyPreviewUrl } from "./spotify-preview";
 
 // Load .env with Spotify credentials & set constants for env secrets
@@ -20,7 +20,9 @@ export function authLogin(req: any, res: any) {
     // TODO: will need to be altered with write permissions
     const scope = 'playlist-read-private \
                     user-read-email \
-                    user-read-private';
+                    user-read-private \
+                    playlist-modify-public \
+                    playlist-modify-private';
 
     const state = generateRandomString(16);
 
@@ -227,5 +229,28 @@ export async function songPreview(req: any, res: any) {
         data = ERROR_RESPONSES.NO_AUTH_OR_PARAM;
         status = StatusCodes.BAD_REQUEST;
     }
+    res.status(status).json(data);
+}
+
+/*
+* Endpoint: /songs/remove
+* Description: Remove songs from the playlist. 
+* TODO: add information about responses and inputs that are needed
+*
+*/
+export async function songRemove(req: any, res: any) {
+    const access_token = req.headers.authorization ?? "";
+    const playlist_id = req.query.playlist_id?.toString() ?? "";
+    const to_remove = req.body['to_remove'];
+
+    let data = undefined;
+    let status = StatusCodes.OK;
+    if (access_token != "" && playlist_id != "" && to_remove.length != 0) {
+        const res = await removeSongsFromPlaylist(access_token, playlist_id, to_remove);
+    } else {
+        data = ERROR_RESPONSES.NO_AUTH_OR_PARAM;
+        status = StatusCodes.BAD_REQUEST;
+    }
+
     res.status(status).json(data);
 }
