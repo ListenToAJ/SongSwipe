@@ -20,11 +20,11 @@ router.get('/user/playlists', userPlaylists);
 // Spotify Playlist endpoints
 router.get('/playlist', playlistData);
 router.get('/playlist/build', playlistBuild);
+router.delete('/playlist/remove', songRemove);
 // Song related endpoints
 router.get('/song', songPreview);
-router.delete('/song/remove', songRemove);
 
-// Netlify API stuff
+// Netlify API setup
 app.use("/.netlify/functions/api", router);
 
 export const handler = serverless(app);

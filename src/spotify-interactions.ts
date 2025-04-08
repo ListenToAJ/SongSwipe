@@ -79,6 +79,8 @@ export async function checkResponse(res: Response) {
     case StatusCodes.NOT_FOUND:
         data = ERROR_RESPONSES.NOT_FOUND;
         break;
+    case StatusCodes.RATE_LIMIT_EXCEEDED:
+        data = ERROR_RESPONSES.RATE_LIMIT_EXCEED;
     default:
         data = ERROR_RESPONSES.UNHANDLED;
     }
@@ -212,23 +214,20 @@ export async function removeSongsFromPlaylist(access_token:string, playlist_id: 
     const request = createRequest(`/playlists/${playlist_id}/tracks`, access_token, HttpMethod.DELETE)
     request.headers.set('Content-Type', 'application/json');
 
+    let data = undefined;
+    let status = undefined;
     while (tracks.length != 0) {
         let to_remove: any = { 'tracks': [] }
         tracks.splice(0, 100).map((id, index) => {
             to_remove.tracks.push({ 'uri': `spotify:track:${id}` });
         });
-        console.log(to_remove);
         
         const delete_request = new Request(request, { body: JSON.stringify(to_remove) });
         const response = await fetch(delete_request);
-        const data = await checkResponse(response);
-        // TODO: add error checking to this
+        data = await checkResponse(response);
+        status = response.status;
+
+        if (status != StatusCodes.OK) break;
     }
-    return { data: {'succes': 'deleted tracks successfully'}, status: 200 };
-    
-    // Steps
-    // Compile 100 songs with indicator on where left off if > 100
-    // Make interaction
-    // repeat if there is more songs
-    // return status of operation
+    return { data: data, status: status };
 }

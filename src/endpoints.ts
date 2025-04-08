@@ -243,10 +243,12 @@ export async function songRemove(req: any, res: any) {
     const playlist_id = req.query.playlist_id?.toString() ?? "";
     const to_remove = req.body['to_remove'];
 
-    let data = undefined;
-    let status = StatusCodes.OK;
+    let data: any = undefined;
+    let status: any = StatusCodes.OK;
     if (access_token != "" && playlist_id != "" && to_remove.length != 0) {
         const res = await removeSongsFromPlaylist(access_token, playlist_id, to_remove);
+        data = res.data;
+        status = res.status;
     } else {
         data = ERROR_RESPONSES.NO_AUTH_OR_PARAM;
         status = StatusCodes.BAD_REQUEST;
