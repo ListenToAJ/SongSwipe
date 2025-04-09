@@ -13,7 +13,7 @@ export enum StatusCodes {
 
 export const ERROR_RESPONSES = {
     'NO_AUTH': { 'error': 'authorization token not provided' },
-    'NO_AUTH_OR_PARAM': { 'error': 'authorization token or playlist_id not provided' },
+    'NO_AUTH_OR_PARAM': { 'error': 'authorization token or required parameter missing.' },
     'INVALID_TOKEN': { 'error': 'invalid access token' },
     'NOT_FOUND': { 'error': 'resource not found' },
     'UNHANDLED': { 'error': 'unhandled response code' },

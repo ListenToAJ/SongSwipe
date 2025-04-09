@@ -71,6 +71,8 @@ export async function checkResponse(res: Response) {
 
     switch(res.status) {
     case StatusCodes.OK:
+    case StatusCodes.CREATED:
+    case StatusCodes.BAD_REQUEST:
         data = await res.json();
         break;
     case StatusCodes.UNAUTHORIZED:
@@ -138,6 +140,32 @@ export async function fetchPlaylist(access_token: string, playlist_id: string) {
 export function getPlaylistId(playlistData: SpotifyPlaylist): string {
     return playlistData.id;
 }
+
+/*
+* Create a playlist on Spotify. calls a post request /users/{user_id}/playlists endpoint.
+* 
+* @param {string} bearer - the user's bearer token needed here for auth 
+* @param {string} playlist_name - the name of the playlist
+* @param {stirng} playlist_description - description of the playlist
+* @param {boolean} public - whether or not the playlist is 
+* 
+* Docs: https://developer.spotify.com/documentation/web-api/reference/create-playlist
+*/
+export async function createPlaylist(access_token: string, user_id: string, name:string, description: string, is_public: boolean) {
+    const request = new Request(createRequest(`/users/${user_id}/playlists`, access_token, HttpMethod.POST), {
+        body: JSON.stringify({
+            'name': name,
+            'description': description,
+            'public': is_public
+        })
+    })
+    request.headers.set('Content-Type', 'application/json');
+
+    const response = await fetch(request);
+    const data = await checkResponse(response);
+    return { data: data, status: response.status };
+}
+
 /*
 * Fetch the tracks from a playlist with an offset. Calls the /playlists/{playlist_id}/tracks endpoint.
 * 
@@ -202,20 +230,50 @@ export async function buildPlaylist(access_token: string, playlist_id: string) {
 }
 
 /*
-* Remove songs from a spotify playlist 
+* Adds songs to a Spotify playlist calls a post request on the /playlist/{playlist_id}/tracks endpoint
+* See: https://developer.spotify.com/documentation/web-api/reference/add-tracks-to-playlist
+*
+* @param {string} bearer - the user's bearer token for auth
+* @param {string} playlist_id - the ud of the playlist you wish to filter
+* @param {list<string>} tracks - List of song ids to added.
+* @return {number} the status code of th operation
+*/
+export async function addSongsToPlaylist(access_token: string, playlist_id: string, tracks: Array<string>) {
+    const request = createRequest(`/playlists/${playlist_id}/tracks`, access_token, HttpMethod.POST);
+    request.headers.set('Content-Type', 'application/json');
+
+    let data = undefined, status = undefined;
+    while (tracks.length != 0) {
+        let to_add: any = { 'uris': [] };
+        tracks.splice(0, 100).map((id, index) => {
+            to_add.uris.push(`spotify:track:${id}`);
+        });
+
+        const post_request = new Request(request, { body: JSON.stringify(to_add) });
+        const response = await fetch(post_request);
+        data = await checkResponse(response)
+        status = response.status;
+
+        if (status != StatusCodes.OK) break;
+    }
+    return { data: data, status: status }
+}
+
+
+/*
+* Remove songs from a spotify playlist calls a delete request on the /playlist/{playlist_id}/tracks endpoint
 * See: https://developer.spotify.com/documentation/web-api/reference/remove-tracks-playlist
 * 
-* @param {string} bearer - the user's bearer token needed here because the playlist may be private.
+* @param {string} bearer - the user's bearer token for auth
 * @param {string} playlist_id - the id of the playlist you wish to filter.
 * @param {list<string>} tracks - List of song ids to be removed.
 * @return {number} the status code of operation
 */
 export async function removeSongsFromPlaylist(access_token:string, playlist_id: string, tracks: Array<string>) {
-    const request = createRequest(`/playlists/${playlist_id}/tracks`, access_token, HttpMethod.DELETE)
+    const request = createRequest(`/playlists/${playlist_id}/tracks`, access_token, HttpMethod.DELETE);
     request.headers.set('Content-Type', 'application/json');
 
-    let data = undefined;
-    let status = undefined;
+    let data = undefined, status = undefined;
     while (tracks.length != 0) {
         let to_remove: any = { 'tracks': [] }
         tracks.splice(0, 100).map((id, index) => {

@@ -1,6 +1,6 @@
 import { ERROR_RESPONSES, generateRandomString, StatusCodes } from "./util";
 import { config } from 'dotenv';
-import { fetchPlaylist, fetchUserInfo, fetchUserPlaylists, buildPlaylist, removeSongsFromPlaylist } from "./spotify-interactions";
+import { fetchPlaylist, fetchUserInfo, fetchUserPlaylists, buildPlaylist, removeSongsFromPlaylist, createPlaylist, addSongsToPlaylist } from "./spotify-interactions";
 import { getSpotifyPreviewUrl } from "./spotify-preview";
 
 // Load .env with Spotify credentials & set constants for env secrets
@@ -114,8 +114,7 @@ export async function authRefresh(req: any, res: any) {
 export async function userData(req: any, res: any) {
     const access_token = req.headers.authorization ?? "";
 
-    let data = undefined;
-    let status = StatusCodes.OK;
+    let data = undefined, status = StatusCodes.OK;
     if (access_token != "") {
         let res = await fetchUserInfo(access_token);
         data = res.data;
@@ -141,8 +140,7 @@ export async function userPlaylists(req: any, res: any) {
     const access_token = req.headers.authorization ?? "";
     
     // TODO: This has a limit on how much you can grab so we need to add that in
-    let data = undefined;
-    let status = StatusCodes.OK;
+    let data = undefined, status = StatusCodes.OK;
     if (access_token != "") {
         let res = await fetchUserPlaylists(access_token);
         data = res.data;
@@ -169,8 +167,7 @@ export async function playlistData(req: any, res: any) {
     const access_token = req.headers.authorization ?? "";
     const playlist_id = req.query.playlist_id?.toString() ?? "";
 
-    let data = undefined;
-    let status = StatusCodes.OK;
+    let data = undefined, status = StatusCodes.OK;
     if (access_token != "" && playlist_id != "") {
         let res = await fetchPlaylist(access_token, playlist_id);
         data = res.data;
@@ -185,20 +182,19 @@ export async function playlistData(req: any, res: any) {
 }
 
 /*
- * Endpoint: /playlist/build
- * Description: Builds a filtered json of a playlist's data based on its id. Requires the 
- *              bearer token to be included in the Authorization header. Also requires the 
- *              playlist id to be in the query parameter playlist_id.
- * 
- * Response: json of user's data. 
- *           See buildPlaylist() comment header for the link to the documentation with data format
- */
+* Endpoint: /playlist/build
+* Description: Builds a filtered json of a playlist's data based on its id. Requires the 
+*              bearer token to be included in the Authorization header. Also requires the 
+*              playlist id to be in the query parameter playlist_id.
+* 
+* Response: json of user's data. 
+*           See buildPlaylist() comment header for the link to the documentation with data format
+*/
 export async function playlistBuild(req: any, res: any) {
     const access_token = req.headers.authorization ?? "";
     const playlist_id = req.query.playlist_id?.toString() ?? "";
     
-    let data = undefined;
-    let status = StatusCodes.OK;
+    let data = undefined, status = StatusCodes.OK;
     if (access_token != "" && playlist_id != "") {
         let res = await buildPlaylist(access_token, playlist_id);
         data = res.data;
@@ -211,6 +207,38 @@ export async function playlistBuild(req: any, res: any) {
     res.status(status);
     res.json(data);
 }
+
+/*
+* Endpoint: /playlist/create
+* Description: Create a new playlist for the user. 
+* TODO: Document i/o
+* 
+*/
+export async function playlistCreate(req: any, res: any){
+    const access_token = req.headers.authorization ?? "";
+    let name = "", description = "", is_public = true;
+    if ('name' in req.body) name = req.body['name'];
+    if ('description' in req.body) description = req.body['description'];
+    if ('is_public' in req.body) is_public = req.body['is_public'];
+    
+    let data = undefined, status = StatusCodes.OK;
+    if (access_token != "" && name != "") {
+        const userData = await fetchUserInfo(access_token);
+        if (userData.status != 200) {
+            res.status(userData.status).json(userData);
+        }
+
+        const createRes = await createPlaylist(access_token, userData.data.id, name, description, is_public);
+        data = createRes.data;
+        status = createRes.status;
+    } else {
+        data = ERROR_RESPONSES.NO_AUTH_OR_PARAM;
+        status = StatusCodes.BAD_REQUEST;
+    }
+
+    res.status(status).json(data);
+}
+
 /*
 * API endpoint to get a Spotify track preview URL
 * 
@@ -233,7 +261,33 @@ export async function songPreview(req: any, res: any) {
 }
 
 /*
-* Endpoint: /songs/remove
+* Endpoint: /playlist/add
+* Description: Add songs into a playlist. 
+* TODO: Document i/o
+* 
+*/
+export async function songAdd(req: any, res: any) {
+    const access_token = req.headers.authorization ?? "";
+    const playlist_id = req.query.playlist_id?.toString() ?? "";
+
+    let to_add = [];
+    if ("to_add" in req.body) to_add = req.body['to_add'];
+
+    let data = undefined, status: any = StatusCodes.OK;
+    if (access_token != "" && playlist_id != "" && to_add.length != 0) {
+        const res = await addSongsToPlaylist(access_token, playlist_id, to_add);
+        data = res.data;
+        status = res.status;
+    } else {
+        data = ERROR_RESPONSES.NO_AUTH_OR_PARAM;
+        status = StatusCodes.BAD_REQUEST;
+    }
+
+    res.status(status).json(data);
+}
+
+/*
+* Endpoint: /playlist/remove
 * Description: Remove songs from the playlist. 
 * TODO: add information about responses and inputs that are needed
 *
@@ -241,10 +295,11 @@ export async function songPreview(req: any, res: any) {
 export async function songRemove(req: any, res: any) {
     const access_token = req.headers.authorization ?? "";
     const playlist_id = req.query.playlist_id?.toString() ?? "";
-    const to_remove = req.body['to_remove'];
+    
+    let to_remove = []; 
+    if ("to_remove" in req.body) to_remove = req.body['to_remove'];
 
-    let data: any = undefined;
-    let status: any = StatusCodes.OK;
+    let data = undefined, status: any = StatusCodes.OK;
     if (access_token != "" && playlist_id != "" && to_remove.length != 0) {
         const res = await removeSongsFromPlaylist(access_token, playlist_id, to_remove);
         data = res.data;
