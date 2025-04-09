@@ -68,6 +68,15 @@ export async function authCallback(req: any, res: any) {
     res.redirect(redirect_home + `?data=${JSON.stringify(data)}`);
 }
 
+/*
+ * Endpoint: /auth/refresh
+ * Description: use refresh token to get new bearer token
+ * 
+ * Request:
+ *  query_params: refresh_token
+ * 
+ * Response: New access token with expiration date
+ */
 export async function authRefresh(req: any, res: any) {
     const refresh_token = req.query.refresh_token?.toString() ?? "";
 
@@ -105,8 +114,10 @@ export async function authRefresh(req: any, res: any) {
 
 /*
  * Endpoint: /user
- * Description: Pulls data of the user's account. Requires the bearer token to be included
- *              in the Authorization header.
+ * Description: Pulls data of the user's account. 
+ * 
+ * Request:
+ *  headers: authorization=bearer_token
  * 
  * Response: json of user's data. 
  *           See fetchUserInfo() comment header for the link to the documentation with data format
@@ -130,8 +141,10 @@ export async function userData(req: any, res: any) {
 
 /*
  * Endpoint: /user/playlists
- * Description: Pulls data of the user's playlists, public & private. Requires the bearer token to 
- *              be included in the Authorization header.
+ * Description: Pulls data of the user's playlists, public & private.
+ *
+ * Request:
+ *  headers: authorization=bearer_token
  * 
  * Response: json of user's data. 
  *           See fetchUserPlaylists() comment header for the link to the documentation with data format
@@ -156,10 +169,12 @@ export async function userPlaylists(req: any, res: any) {
 
 /*
  * Endpoint: /playlist
- * Description: Pulls data of a playlist from its id. Requires the bearer token to be included
- *              in the Authorization header. Also requires the playlist id to be in the
- *              query parameter playlist_id.
+ * Description: Pulls data of a playlist from its id.
  * 
+ * Request:
+ *  headers: authorization=bearer_token
+ *  query params: playlist_id 
+ *  
  * Response: json of user's data. 
  *           See fetchPlaylist() comment header for the link to the documentation with data format
  */
@@ -183,9 +198,11 @@ export async function playlistData(req: any, res: any) {
 
 /*
 * Endpoint: /playlist/build
-* Description: Builds a filtered json of a playlist's data based on its id. Requires the 
-*              bearer token to be included in the Authorization header. Also requires the 
-*              playlist id to be in the query parameter playlist_id.
+* Description: Builds a filtered json of a playlist's data based on its id.
+*
+* Request:
+*  headers: authorization=bearer_token
+*  query_params: playlis_id
 * 
 * Response: json of user's data. 
 *           See buildPlaylist() comment header for the link to the documentation with data format
@@ -211,8 +228,13 @@ export async function playlistBuild(req: any, res: any) {
 /*
 * Endpoint: /playlist/create
 * Description: Create a new playlist for the user. 
-* TODO: Document i/o
 * 
+* Request:
+*  headers: authorization=bearer_token
+*  body: name, description, is_public
+* 
+* Response: json of new playlist.
+*           See createPlaylist() comment to see format.
 */
 export async function playlistCreate(req: any, res: any){
     const access_token = req.headers.authorization ?? "";
@@ -240,10 +262,13 @@ export async function playlistCreate(req: any, res: any){
 }
 
 /*
-* API endpoint to get a Spotify track preview URL
+* Endpoint: /song
+* Description: API endpoint to get a Spotify track preview URL
 * 
-* @param req - The HTTP request object
-* @param res - The HTTP response object
+* Request: 
+*   query_params: track_id
+*   
+* Response: url of songs preview mp3
 */
 export async function songPreview(req: any, res: any) {
     const track_id = req.query.track_id?.toString() ?? "";
@@ -263,8 +288,13 @@ export async function songPreview(req: any, res: any) {
 /*
 * Endpoint: /playlist/add
 * Description: Add songs into a playlist. 
-* TODO: Document i/o
 * 
+* Request: 
+*   headers: authorization=bearer_token
+*   query_params: playlist_id
+*   body: list of track ids to add 
+* 
+* Response: Playlist Snapshot ID
 */
 export async function songAdd(req: any, res: any) {
     const access_token = req.headers.authorization ?? "";
@@ -289,7 +319,13 @@ export async function songAdd(req: any, res: any) {
 /*
 * Endpoint: /playlist/remove
 * Description: Remove songs from the playlist. 
-* TODO: add information about responses and inputs that are needed
+* 
+* Request: 
+*   headers: authorization=bearer_token
+*   query_params: playlist_id
+*   body: list of track ids to remove 
+* 
+* Response: Playlist Snapshot ID
 *
 */
 export async function songRemove(req: any, res: any) {
