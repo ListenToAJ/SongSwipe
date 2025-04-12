@@ -203,18 +203,24 @@ export async function buildPlaylist(access_token: string, playlist_id: string) {
         let { data, status } = await fetchPlaylistTracks(access_token, playlist_id, track_list.length);
 
         if (status != StatusCodes.OK) {
-            return { 'data': { 'error': 'error fetching tracks'}, 'status': StatusCodes.INTERNAL_SERVER_ERROR };
+            return { 'data': { 'error': 'error fetching tracks'}, 'status': status };
         }
 
         for (const element of data.items) {
             if (!element.is_local)
-                track_list.push({
-                    track_id: element.track.id,
-                    name: element.track.name,
-                    album_name: element.track.album.name,
-                    album_cover_img_url: element.track.album.images[0].url,
-                    artists: element.track.artists.map((artist: any) => artist.name),
-                });
+                try {
+                    track_list.push({
+                        track_id: element.track.id,
+                        name: element.track.name,
+                        album_name: element.track.album.name,
+                        album_cover_img_url: element.track.album.images[0].url,
+                        artists: element.track.artists.map((artist: any) => artist.name),
+                    });
+                }
+                catch {
+                    console.log('error song')
+                    playlist.tracks.total -= 1;
+                }
             else playlist.tracks.total -= 1;
         }
     }

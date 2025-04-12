@@ -61,6 +61,11 @@ $(document).ready(async function () {
         })
 
         const response = await fetch(playlist_request);
+        if (response.status != 200) {
+            renderError('Playlist is not compatible.');
+            return;
+        }
+        
         const data = await response.json();
         songs = data.tracks.sort(() => Math.random() - 0.5);  
 
@@ -502,9 +507,11 @@ closeButton.addEventListener('click', function() {
                 if (swipe_details.distance > DISTANCE_TO_SWIPE) {
                     if (swipe_details.direction === -1) {
                         left_tracks.push(songs[track_index].track_id);
+                        save()
                     }
                     if (swipe_details.direction === 1) {
                         right_tracks.push(songs[track_index].track_id);
+                        save()
                     }
                     // Plays new song after swipe
                     track_index += 1;
@@ -571,7 +578,7 @@ closeButton.addEventListener('click', function() {
                                 if (track_index === song_url.length) {
                                     // Save the playlist to local storage
                                     removePlaylist();
-                                    alert("Thank you!\n\nYou have finished the demo, the page will now refresh!");
+                                    
                                     window.location.reload();
                                 }
                                 updateSongCard(songIndex, "last_song_card");
