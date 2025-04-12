@@ -71,7 +71,7 @@ $(document).ready(async function () {
         // Overlay Items
         const overlay_playlist_name = document.getElementById('loading_title');
             // Get Playlist Name
-        overlay_playlist_name.innerHTML = data.name;
+        overlay_playlist_name.textContent = (data.name);
             // Get Album Cover
         const loading_album_art = document.getElementById('loading_album_art');
         loading_album_art.src = data.img_url;
