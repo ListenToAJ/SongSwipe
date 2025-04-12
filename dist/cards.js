@@ -14,19 +14,22 @@ $(document).ready(async function () {
     headers.set('Authorization', access_token);
     headers.set('Access-Control-Allow-Origin', '*');
 
+    // Hide Overlay Button until all the songs are loaded
+    const closeButton = document.getElementById('close-overlay');
+    closeButton.classList.add('hidden');
+    // Overlay Variables
+    overlay_playlist_title = document.getElementById('loading_playlist_title_variable');
     // Song_player object
         // Empty song file instead of null
     let song_player = new Audio("https://bigsoundbank.com/UPLOAD/mp3/0917.mp3");
     // Variable to control if playing
     let isPlaying = true;
-    // Starts playing by default
-    playSong();
     
     // Get Specific Playlist
     var songs = null;
 
     // Needed data for stuff
-    let playlist_name = null
+    let playlist_name = null;
     let playlist_id = null;
 
     // Get User Data
@@ -65,6 +68,13 @@ $(document).ready(async function () {
         songs = data.tracks.sort(() => Math.random() - 0.5);  
 
         playlist_title = document.getElementById('playlist_title_variable');
+        // Overlay Items
+        const overlay_playlist_name = document.getElementById('loading_title');
+            // Get Playlist Name
+        overlay_playlist_name.innerHTML = data.name;
+            // Get Album Cover
+        const loading_album_art = document.getElementById('loading_album_art');
+        loading_album_art.src = data.img_url;
         // Save the name of the playlist for now
         playlist_name = data.name;
 
@@ -130,11 +140,13 @@ $(document).ready(async function () {
                     const response = await fetch(songPreview_request);
                     const data = await response.json();
                     song_url.push(data);
-                    playlist_title.innerHTML = (`Loading ... ${i+1}/${songs.length}`);
+                    overlay_playlist_title.innerHTML = (`Loading Songs ... ${i+1}/${songs.length}`);
                 } catch (error) {
                     console.error(`Error fetching song ${i+1}:`, error);
                 }
             }
+            // Show Button Because it is finished Loading
+            closeButton.classList.remove('hidden');
             return song_url;
     }
 
@@ -201,8 +213,6 @@ $(document).ready(async function () {
         }
     }
 
-    // Plays song at the start of the tracklist
-    songPlayer(track_index);
     /**
      * Updates the song information on a specific card element.
      * 
@@ -376,11 +386,13 @@ function reloadPlaylist(reference, target) {
 
 // Function to have an overlay when loading in songs
 const overlay = document.getElementById('overlay');
-const closeButton = document.getElementById('close-overlay');
 
 // Close overlay when button is clicked
 closeButton.addEventListener('click', function() {
     overlay.classList.add('hidden');
+    // Starts playing by default
+        // Plays song at the start of the tracklist
+    songPlayer(track_index);
 });
 
     //! Listener for reloading app for testing on mobile (REMOVE LATER)
