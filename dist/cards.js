@@ -373,6 +373,16 @@ function reloadPlaylist(reference, target) {
         }
     }
 }
+
+// Function to have an overlay when loading in songs
+const overlay = document.getElementById('overlay');
+const closeButton = document.getElementById('close-overlay');
+
+// Close overlay when button is clicked
+closeButton.addEventListener('click', function() {
+    overlay.classList.add('hidden');
+});
+
     //! Listener for reloading app for testing on mobile (REMOVE LATER)
     // $("#playlist_title").on("click touchstart", function (e) {
     //     alert("Reloading...");
