@@ -34,12 +34,8 @@ $(document).ready(async function () {
     let user = null;
     let user_status = 0;
 
-    // Array to keep track of tracks
-    let right_tracks = [];
-    let left_tracks = [];
-
     // index to keep track of the tracks
-    track_index = 0;
+    let track_index = 0;
 
     // Get playlist information from href
     try {
@@ -78,35 +74,46 @@ $(document).ready(async function () {
     }
 
     // Read Local Storage first before loading songs
+    let save_state = null;
     try {
         user = JSON.parse(localStorage.getItem(user_id));
+        console.log(user);
         if (user === null) {
+            save_state = {'left_tracks': {}, 'right_tracks': {}, 'index': 0};
+            to_save = { [playlist_id]: save_state }
+            localStorage.setItem(user_id, JSON.stringify(to_save));
             // new person hehe
-            user_status = 1;
+            // user_status = 1;
+        } else if (user[playlist_id] == null) {
+            user[playlist_id] = {'left_tracks': {}, 'right_tracks': {}, 'index': 0};
+            save_state = {'left_tracks': {}, 'right_tracks': {}, 'index': 0};
+            localStorage.setItem(user_id, JSON.stringify(user));
         } else {
+            save_state = user[playlist_id];
             // declare user status
-            user_status = 3;
+            // user_status = 3;
             // current user's playlist if its the same one
-            console.log(user);
-            for (let i = 0; i < user.playlists.length; i++) {
-                if (user.playlists[i].playlist_id == playlist_id) {
-                    user_status = 2;
-                    left_tracks = user.playlists[i].left_tracks;
-                    right_tracks = user.playlists[i].right_tracks;
-                    break;
-                }
-            }
+            // console.log(user);
+            // for (let i = 0; i < user.playlists.length; i++) {
+            //     if (user.playlists[i].playlist_id == playlist_id) {
+            //         user_status = 2;
+            //         left_tracks = user.playlists[i].left_tracks;
+            //         right_tracks = user.playlists[i].right_tracks;
+            //         break;
+            //     }
+            // }
         }
     } catch (error) {
         alert(error);
     }
 
+    console.log(save_state)
     // remove songs from the Songs array if there is any
-    if (right_tracks !== null){
-        reloadPlaylist(right_tracks, songs);
+    if (save_state.right_tracks != {}){
+        reloadPlaylist(Object.keys(save_state.right_tracks), songs);
     }
-    if (left_tracks !== null){
-        reloadPlaylist(left_tracks, songs);
+    if (save_state.left_tracks != {}){
+        reloadPlaylist(Object.keys(save_state.left_tracks), songs);
     }
 
     // wait to get all the URLS
@@ -259,15 +266,17 @@ $(".song_button").click(function() {
 });
 
 $(".back_button").click(function() {
-    save();
+    save(playlist_id, save_state);
     window.location.href = "playlists.html";
 });
 
 // Saves the JSON
-function save() {
-    const thisJSON = getJSON();
-    localStorage.setItem(user_id, JSON.stringify(thisJSON));
-    console.log(thisJSON);
+function save(playlist_id, save_state) {
+    //const thisJSON = getJSON();
+    let data = JSON.parse(localStorage.getItem(user_id))
+    data[playlist_id] = save_state
+    localStorage.setItem(user_id, JSON.stringify(data));
+    console.log(save_state);
 }
 
 // Restart Song Button aka start from 0
@@ -290,6 +299,8 @@ song_player.addEventListener('ended', function() {
 function getJSON() {
     // make playlist object
     thisPlaylist = getPlaylist();
+
+
 
     //make user Json based on status
     if (user_status === 1) {
@@ -355,6 +366,8 @@ function removePlaylist() {
 
 // Get UserID
 async function getUserId() {
+    if (checkAccessTokenExpiration()) access_token = refreshAccessToken();
+    if (access_token == null) renderError('Error refreshing access token.');
     const request_user = new Request(`${API_URI}/user`, {
         method: 'GET',
         headers: headers,
@@ -505,16 +518,34 @@ closeButton.addEventListener('click', function() {
 
                 // If the song has been completed_swipe enough to declare it left or right swipe
                 if (swipe_details.distance > DISTANCE_TO_SWIPE) {
+                    let track_id = songs[track_index].track_id;
                     if (swipe_details.direction === -1) {
-                        left_tracks.push(songs[track_index].track_id);
-                        save()
-                    }
-                    if (swipe_details.direction === 1) {
-                        right_tracks.push(songs[track_index].track_id);
-                        save()
+                        console.log(songs[track_index])
+                        save_state.left_tracks[track_id] = {
+                            'track_name': songs[track_index].name,
+                            'album_cover': songs[track_index].album_cover_img_url,
+                        }
+                        // left_tracks.push({
+                        //     'track_id': songs[track_index].track_id,
+                        //     'track_name': songs[track_index].name,
+                        //     'album_cover': songs[track_index].album_cover_img_url,
+                        // });
+                        save(playlist_id, save_state)
+                    } else if (swipe_details.direction === 1) {
+                        save_state.right_tracks[track_id] = {
+                            'track_name': songs[track_index].name,
+                            'album_cover': songs[track_index].album_cover_img_url,
+                        }
+                        // right_tracks.push({
+                        //     'track_id': songs[track_index].track_id,
+                        //     'track_name': songs[track_index].name,
+                        //     'album_cover': songs[track_index].album_cover_img_url,
+                        // });
+                        save(playlist_id, save_state)
                     }
                     // Plays new song after swipe
                     track_index += 1;
+                    save_state.index = track_index;
                     if (track_index < song_url.length) {
                         songPlayer(track_index);
                     }
