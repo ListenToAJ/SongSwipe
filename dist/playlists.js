@@ -68,4 +68,62 @@ $(document).ready(async function () {
     for (i = 0; i < data_playlists.items.length && data_playlists.items != null; i++) {
         playlist_container.appendChild(create_playlist_card(data_playlists.items[i]));
     }
+
+    // Variable to Toggle if a URL card has been added
+    let urlCard = false; // False is default behavior as we expect the user to not search when first loading
+
+    // URL SEARCH CONFIGURATION
+    const urlSearchButton = document.getElementById('playlists_url_button');
+    const urlSearch = document.getElementById('url_search');
+
+    // WHEN USER SUBMITS FORM TAKE STRING
+    urlSearchButton.addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent form submission
+        const playlistUrl = urlSearch.value.trim();
+        const playlistId = getPlaylistIdFromUrl(playlistUrl);
+        if (playlistId != null) {
+            // IF IT IS A VALID URL, CALL API AND GET PLAYLIST ID
+            if (urlCard) {
+                // Remove the URL card if it already exists
+                playlist_container.removeChild(playlist_container.firstChild);
+                getPlaylistFromUrl(playlistId);
+            } else {
+                // Make new card and append to container
+                getPlaylistFromUrl(playlistId);
+                urlCard = true; // Set to true so we know we have added a card
+            }
+        } else {
+            alert('Please enter a valid playlist URL');
+        }
+    });
+    // Function to call API and get playlist from URL
+    async function getPlaylistFromUrl(playlistId) {
+        // Get Token to use API
+            // Will need to refactor eventually
+        if (checkAccessTokenExpiration()) access_token = refreshAccessToken();
+        if (access_token == null) renderError('Error refreshing access token.');
+        // GET PLAYLIST ID FROM URL
+        let playlist_url = new URL(`${API_URI}/playlist`);
+        playlist_url.searchParams.set('playlist_id', playlistId);
+        console.log(playlist_url);
+        // MAKE API CALL
+        const request_playlist = new Request(playlist_url.toString(), {
+            method: 'GET',
+            headers: headers,
+        });
+
+        // GET RESPONSE
+        const response = await fetch(request_playlist);
+        const data = await response.json();
+
+        // APPEND NEW CARD TO CONTAINER
+        playlist_container.prepend(create_playlist_card(data));
+    }
+
+    // GET PLAYLIST ID FROM URL
+    function getPlaylistIdFromUrl(url) {
+        const regex = /https:\/\/open\.spotify\.com\/playlist\/([a-zA-Z0-9]{22})/;
+        const match = url.match(regex);
+        return match ? match[1] : null;
+    }
 });

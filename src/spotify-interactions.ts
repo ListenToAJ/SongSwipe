@@ -133,7 +133,7 @@ export async function fetchPlaylist(access_token: string, playlist_id: string) {
 
     const response = await fetch(request);
     const data = await checkResponse(response);
-    return { data: data as SpotifyPlaylist, status: response.status };
+    return { data: data, status: response.status };
 }
 
 // Helper function to export playlist data id
