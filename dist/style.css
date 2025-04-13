@@ -67,9 +67,11 @@ body{
     font-family: 'DM Serif Display';
     overflow: hidden;
     background: rgb(32,32,32);
+    background: #00B140; /*! REMOVE ME*/
     /* padding-top: env(safe-area-inset-top); */
 
-    background-image: url('assets/img/background.jpg'); /* Replace with your image URL */
+    /*! REMOVE ME*/
+    /* background-image: url('assets/img/background.jpg'); Replace with your image URL */
     background-size: cover;  /* Ensures the image covers the whole screen */
     background-position: center; /* Centers the image */
     background-repeat: no-repeat; /* Prevents tiling */
@@ -186,6 +188,7 @@ transform: translateX(200px) rotate(20deg);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+    display: none; /*! REMOVE ME*/
 }
 /* Modifier Classes */
 
