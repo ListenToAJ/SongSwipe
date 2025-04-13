@@ -14,19 +14,22 @@ $(document).ready(async function () {
     headers.set('Authorization', access_token);
     headers.set('Access-Control-Allow-Origin', '*');
 
+    // Hide Overlay Button until all the songs are loaded
+    const closeButton = document.getElementById('close-overlay');
+    closeButton.classList.add('hidden');
+    // Overlay Variables
+    overlay_playlist_title = document.getElementById('loading_playlist_title_variable');
     // Song_player object
         // Empty song file instead of null
     let song_player = new Audio("https://bigsoundbank.com/UPLOAD/mp3/0917.mp3");
     // Variable to control if playing
     let isPlaying = true;
-    // Starts playing by default
-    playSong();
     
     // Get Specific Playlist
     var songs = null;
 
     // Needed data for stuff
-    let playlist_name = null
+    let playlist_name = null;
     let playlist_id = null;
 
     // Get User Data
@@ -34,12 +37,8 @@ $(document).ready(async function () {
     let user = null;
     let user_status = 0;
 
-    // Array to keep track of tracks
-    let right_tracks = [];
-    let left_tracks = [];
-
     // index to keep track of the tracks
-    track_index = 0;
+    let track_index = 0;
 
     // Get playlist information from href
     try {
@@ -61,10 +60,22 @@ $(document).ready(async function () {
         })
 
         const response = await fetch(playlist_request);
+        if (response.status != 200) {
+            renderError('Playlist is not compatible.');
+            return;
+        }
+        
         const data = await response.json();
         songs = data.tracks.sort(() => Math.random() - 0.5);  
 
         playlist_title = document.getElementById('playlist_title_variable');
+        // Overlay Items
+        const overlay_playlist_name = document.getElementById('loading_title');
+            // Get Playlist Name
+        overlay_playlist_name.textContent = (data.name);
+            // Get Album Cover
+        const loading_album_art = document.getElementById('loading_album_art');
+        loading_album_art.src = data.img_url;
         // Save the name of the playlist for now
         playlist_name = data.name;
 
@@ -73,35 +84,46 @@ $(document).ready(async function () {
     }
 
     // Read Local Storage first before loading songs
+    let save_state = null;
     try {
         user = JSON.parse(localStorage.getItem(user_id));
+        console.log(user);
         if (user === null) {
+            save_state = {'left_tracks': {}, 'right_tracks': {}, 'index': 0};
+            to_save = { [playlist_id]: save_state }
+            localStorage.setItem(user_id, JSON.stringify(to_save));
             // new person hehe
-            user_status = 1;
+            // user_status = 1;
+        } else if (user[playlist_id] == null) {
+            user[playlist_id] = {'left_tracks': {}, 'right_tracks': {}, 'index': 0};
+            save_state = {'left_tracks': {}, 'right_tracks': {}, 'index': 0};
+            localStorage.setItem(user_id, JSON.stringify(user));
         } else {
+            save_state = user[playlist_id];
             // declare user status
-            user_status = 3;
+            // user_status = 3;
             // current user's playlist if its the same one
-            console.log(user);
-            for (let i = 0; i < user.playlists.length; i++) {
-                if (user.playlists[i].playlist_id == playlist_id) {
-                    user_status = 2;
-                    left_tracks = user.playlists[i].left_tracks;
-                    right_tracks = user.playlists[i].right_tracks;
-                    break;
-                }
-            }
+            // console.log(user);
+            // for (let i = 0; i < user.playlists.length; i++) {
+            //     if (user.playlists[i].playlist_id == playlist_id) {
+            //         user_status = 2;
+            //         left_tracks = user.playlists[i].left_tracks;
+            //         right_tracks = user.playlists[i].right_tracks;
+            //         break;
+            //     }
+            // }
         }
     } catch (error) {
         alert(error);
     }
 
+    console.log(save_state)
     // remove songs from the Songs array if there is any
-    if (right_tracks !== null){
-        reloadPlaylist(right_tracks, songs);
+    if (save_state.right_tracks != {}){
+        reloadPlaylist(Object.keys(save_state.right_tracks), songs);
     }
-    if (left_tracks !== null){
-        reloadPlaylist(left_tracks, songs);
+    if (save_state.left_tracks != {}){
+        reloadPlaylist(Object.keys(save_state.left_tracks), songs);
     }
 
     // wait to get all the URLS
@@ -130,11 +152,13 @@ $(document).ready(async function () {
                     const response = await fetch(songPreview_request);
                     const data = await response.json();
                     song_url.push(data);
-                    playlist_title.innerHTML = (`Loading ... ${i+1}/${songs.length}`);
+                    overlay_playlist_title.innerHTML = (`Loading Songs ... ${i+1}/${songs.length}`);
                 } catch (error) {
                     console.error(`Error fetching song ${i+1}:`, error);
                 }
             }
+            // Show Button Because it is finished Loading
+            closeButton.classList.remove('hidden');
             return song_url;
     }
 
@@ -201,8 +225,6 @@ $(document).ready(async function () {
         }
     }
 
-    // Plays song at the start of the tracklist
-    songPlayer(track_index);
     /**
      * Updates the song information on a specific card element.
      * 
@@ -254,15 +276,17 @@ $(".song_button").click(function() {
 });
 
 $(".back_button").click(function() {
-    save();
+    save(playlist_id, save_state);
     window.location.href = "playlists.html";
 });
 
 // Saves the JSON
-function save() {
-    const thisJSON = getJSON();
-    localStorage.setItem(user_id, JSON.stringify(thisJSON));
-    console.log(thisJSON);
+function save(playlist_id, save_state) {
+    //const thisJSON = getJSON();
+    let data = JSON.parse(localStorage.getItem(user_id))
+    data[playlist_id] = save_state
+    localStorage.setItem(user_id, JSON.stringify(data));
+    console.log(save_state);
 }
 
 // Restart Song Button aka start from 0
@@ -285,6 +309,8 @@ song_player.addEventListener('ended', function() {
 function getJSON() {
     // make playlist object
     thisPlaylist = getPlaylist();
+
+
 
     //make user Json based on status
     if (user_status === 1) {
@@ -323,21 +349,35 @@ function getPlaylist() {
     return thisPlaylist;
 }
 
-function removePlaylist(){
+function removePlaylist() {
+    if (user_status === 1) {
+        // Do NOT SAVE
+        return;
+    }
+    // If user was working on a playlist, remove it from local storage as they are done
     // Finds location of playlist in the array
     const playlist_index = user.playlists.findIndex(playlist => playlist.playlist_id === playlist_id);
     // Removes that playlist because reviewing playlist is over
-    user.playlists.splice(playlist_index, 1);
-
-    // If theres no more playlists saved, delete local record
-    if (user.playlists.length === 0) {
-        localStorage.removeItem(user_id);
+    if (playlist_index !== -1) {
+        // remove playlist
+            user.playlists.splice(playlist_index, 1);
+            // If theres no more playlists saved, delete local record
+            if (user.playlists.length === 0) {
+                localStorage.removeItem(user_id);
+            } else {
+                // Update the user data in localStorage
+                localStorage.setItem(user_id, JSON.stringify(user));
+            }
+    } else {
+        console.log("Cannot find playlist when removing");
     }
-    save();
+    
 }
 
 // Get UserID
 async function getUserId() {
+    if (checkAccessTokenExpiration()) access_token = refreshAccessToken();
+    if (access_token == null) renderError('Error refreshing access token.');
     const request_user = new Request(`${API_URI}/user`, {
         method: 'GET',
         headers: headers,
@@ -361,6 +401,18 @@ function reloadPlaylist(reference, target) {
         }
     }
 }
+
+// Function to have an overlay when loading in songs
+const overlay = document.getElementById('overlay');
+
+// Close overlay when button is clicked
+closeButton.addEventListener('click', function() {
+    overlay.classList.add('hidden');
+    // Starts playing by default
+        // Plays song at the start of the tracklist
+    songPlayer(track_index);
+});
+
     //! Listener for reloading app for testing on mobile (REMOVE LATER)
     // $("#playlist_title").on("click touchstart", function (e) {
     //     alert("Reloading...");
@@ -478,17 +530,40 @@ function reloadPlaylist(reference, target) {
 
                 // If the song has been completed_swipe enough to declare it left or right swipe
                 if (swipe_details.distance > DISTANCE_TO_SWIPE) {
+                    let track_id = songs[track_index].track_id;
                     if (swipe_details.direction === -1) {
-                        left_tracks.push(songs[track_index].track_id);
+                        console.log(songs[track_index])
+                        save_state.left_tracks[track_id] = {
+                            'track_name': songs[track_index].name,
+                            'album_cover': songs[track_index].album_cover_img_url,
+                        }
+                        // left_tracks.push({
+                        //     'track_id': songs[track_index].track_id,
+                        //     'track_name': songs[track_index].name,
+                        //     'album_cover': songs[track_index].album_cover_img_url,
+                        // });
+                        save(playlist_id, save_state)
+                    } else if (swipe_details.direction === 1) {
+                        save_state.right_tracks[track_id] = {
+                            'track_name': songs[track_index].name,
+                            'album_cover': songs[track_index].album_cover_img_url,
+                        }
+                        // right_tracks.push({
+                        //     'track_id': songs[track_index].track_id,
+                        //     'track_name': songs[track_index].name,
+                        //     'album_cover': songs[track_index].album_cover_img_url,
+                        // });
+                        save(playlist_id, save_state)
                     }
-                    if (swipe_details.direction === 1) {
-                        right_tracks.push(songs[track_index].track_id);
-                    }
-                    tracking = false;
-                    completed_swipe = true;
                     // Plays new song after swipe
                     track_index += 1;
-                    songPlayer(track_index);
+                    save_state.index = track_index;
+                    if (track_index < song_url.length) {
+                        songPlayer(track_index);
+                    }
+
+                    tracking = false;
+                    completed_swipe = true;
 
                     // Add transition for smooth animation
                     $("#song_card").css({
@@ -539,13 +614,15 @@ function reloadPlaylist(reference, target) {
 
                                 // Temporary population of final card
                                 //! IMPORTANT : THIS IS WHERE NEW SONGS NEED TO BE PLACED VIA API TO BE ADDED TO SWIPING ROTATION ! ! ! ! ! ! 
-                                songIndex = (songIndex + 1);
-                                if (songIndex > songs.length){
-                                    // Save remove_tracks to local storage
-                                    console.log(left_tracks.length + " " + right_tracks.length);
+                                if (songIndex < song_url.length - 1) {
+                                    songIndex  += 1;
+                                    console.log(track_index);
+                                }
+                                if (track_index === song_url.length) {
+                                    // Save the playlist to local storage
                                     removePlaylist();
-                                    alert("Thank you!\n\nYou have finished the demo, the page will now refresh!")
-                                    window.location.reload()
+                                    
+                                    window.location.reload();
                                 }
                                 updateSongCard(songIndex, "last_song_card");
                                 completed_swipe = false;

@@ -7,16 +7,18 @@ export enum StatusCodes {
     UNAUTHORIZED = 401,
     FORBIDDEN = 403,
     NOT_FOUND = 404,
+    RATE_LIMIT_EXCEEDED = 429,
     INTERNAL_SERVER_ERROR = 500,
 }
 
 export const ERROR_RESPONSES = {
     'NO_AUTH': { 'error': 'authorization token not provided' },
-    'NO_AUTH_OR_PARAM': { 'error': 'authorization token or playlist_id not provided' },
+    'NO_AUTH_OR_PARAM': { 'error': 'authorization token or required parameter missing.' },
     'INVALID_TOKEN': { 'error': 'invalid access token' },
     'NOT_FOUND': { 'error': 'resource not found' },
     'UNHANDLED': { 'error': 'unhandled response code' },
-    'REFRESH_ERROR': { 'error' : 'failed to refresh access token' }
+    'REFRESH_ERROR': { 'error' : 'failed to refresh access token' },
+    'RATE_LIMIT_EXCEED': { 'error' : 'application rate limit exceed' }
 }
 
 /* 

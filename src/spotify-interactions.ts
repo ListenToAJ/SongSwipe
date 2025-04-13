@@ -71,6 +71,8 @@ export async function checkResponse(res: Response) {
 
     switch(res.status) {
     case StatusCodes.OK:
+    case StatusCodes.CREATED:
+    case StatusCodes.BAD_REQUEST:
         data = await res.json();
         break;
     case StatusCodes.UNAUTHORIZED:
@@ -79,6 +81,8 @@ export async function checkResponse(res: Response) {
     case StatusCodes.NOT_FOUND:
         data = ERROR_RESPONSES.NOT_FOUND;
         break;
+    case StatusCodes.RATE_LIMIT_EXCEEDED:
+        data = ERROR_RESPONSES.RATE_LIMIT_EXCEED;
     default:
         data = ERROR_RESPONSES.UNHANDLED;
     }
@@ -129,13 +133,39 @@ export async function fetchPlaylist(access_token: string, playlist_id: string) {
 
     const response = await fetch(request);
     const data = await checkResponse(response);
-    return { data: data as SpotifyPlaylist, status: response.status };
+    return { data: data, status: response.status };
 }
 
 // Helper function to export playlist data id
 export function getPlaylistId(playlistData: SpotifyPlaylist): string {
     return playlistData.id;
 }
+
+/*
+* Create a playlist on Spotify. calls a post request /users/{user_id}/playlists endpoint.
+* 
+* @param {string} bearer - the user's bearer token needed here for auth 
+* @param {string} playlist_name - the name of the playlist
+* @param {stirng} playlist_description - description of the playlist
+* @param {boolean} public - whether or not the playlist is 
+* 
+* Docs: https://developer.spotify.com/documentation/web-api/reference/create-playlist
+*/
+export async function createPlaylist(access_token: string, user_id: string, name:string, description: string, is_public: boolean) {
+    const request = new Request(createRequest(`/users/${user_id}/playlists`, access_token, HttpMethod.POST), {
+        body: JSON.stringify({
+            'name': name,
+            'description': description,
+            'public': is_public
+        })
+    })
+    request.headers.set('Content-Type', 'application/json');
+
+    const response = await fetch(request);
+    const data = await checkResponse(response);
+    return { data: data, status: response.status };
+}
+
 /*
 * Fetch the tracks from a playlist with an offset. Calls the /playlists/{playlist_id}/tracks endpoint.
 * 
@@ -173,18 +203,24 @@ export async function buildPlaylist(access_token: string, playlist_id: string) {
         let { data, status } = await fetchPlaylistTracks(access_token, playlist_id, track_list.length);
 
         if (status != StatusCodes.OK) {
-            return { 'data': { 'error': 'error fetching tracks'}, 'status': StatusCodes.INTERNAL_SERVER_ERROR };
+            return { 'data': { 'error': 'error fetching tracks'}, 'status': status };
         }
 
         for (const element of data.items) {
             if (!element.is_local)
-                track_list.push({
-                    track_id: element.track.id,
-                    name: element.track.name,
-                    album_name: element.track.album.name,
-                    album_cover_img_url: element.track.album.images[0].url,
-                    artists: element.track.artists.map((artist: any) => artist.name),
-                });
+                try {
+                    track_list.push({
+                        track_id: element.track.id,
+                        name: element.track.name,
+                        album_name: element.track.album.name,
+                        album_cover_img_url: element.track.album.images[0].url,
+                        artists: element.track.artists.map((artist: any) => artist.name),
+                    });
+                }
+                catch {
+                    console.log('error song')
+                    playlist.tracks.total -= 1;
+                }
             else playlist.tracks.total -= 1;
         }
     }
@@ -199,4 +235,63 @@ export async function buildPlaylist(access_token: string, playlist_id: string) {
     };
 }
 
-// Kat's Edits
+/*
+* Adds songs to a Spotify playlist calls a post request on the /playlist/{playlist_id}/tracks endpoint
+* See: https://developer.spotify.com/documentation/web-api/reference/add-tracks-to-playlist
+*
+* @param {string} bearer - the user's bearer token for auth
+* @param {string} playlist_id - the ud of the playlist you wish to filter
+* @param {list<string>} tracks - List of song ids to added.
+* @return {number} the status code of th operation
+*/
+export async function addSongsToPlaylist(access_token: string, playlist_id: string, tracks: Array<string>) {
+    const request = createRequest(`/playlists/${playlist_id}/tracks`, access_token, HttpMethod.POST);
+    request.headers.set('Content-Type', 'application/json');
+
+    let data = undefined, status = undefined;
+    while (tracks.length != 0) {
+        let to_add: any = { 'uris': [] };
+        tracks.splice(0, 100).map((id, index) => {
+            to_add.uris.push(`spotify:track:${id}`);
+        });
+
+        const post_request = new Request(request, { body: JSON.stringify(to_add) });
+        const response = await fetch(post_request);
+        data = await checkResponse(response)
+        status = response.status;
+
+        if (status != StatusCodes.OK) break;
+    }
+    return { data: data, status: status }
+}
+
+
+/*
+* Remove songs from a spotify playlist calls a delete request on the /playlist/{playlist_id}/tracks endpoint
+* See: https://developer.spotify.com/documentation/web-api/reference/remove-tracks-playlist
+* 
+* @param {string} bearer - the user's bearer token for auth
+* @param {string} playlist_id - the id of the playlist you wish to filter.
+* @param {list<string>} tracks - List of song ids to be removed.
+* @return {number} the status code of operation
+*/
+export async function removeSongsFromPlaylist(access_token:string, playlist_id: string, tracks: Array<string>) {
+    const request = createRequest(`/playlists/${playlist_id}/tracks`, access_token, HttpMethod.DELETE);
+    request.headers.set('Content-Type', 'application/json');
+
+    let data = undefined, status = undefined;
+    while (tracks.length != 0) {
+        let to_remove: any = { 'tracks': [] }
+        tracks.splice(0, 100).map((id, index) => {
+            to_remove.tracks.push({ 'uri': `spotify:track:${id}` });
+        });
+        
+        const delete_request = new Request(request, { body: JSON.stringify(to_remove) });
+        const response = await fetch(delete_request);
+        data = await checkResponse(response);
+        status = response.status;
+
+        if (status != StatusCodes.OK) break;
+    }
+    return { data: data, status: status };
+}
