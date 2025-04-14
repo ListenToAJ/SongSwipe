@@ -535,6 +535,7 @@ closeButton.addEventListener('click', function() {
                         console.log(songs[track_index])
                         save_state.left_tracks[track_id] = {
                             'track_name': songs[track_index].name,
+                            'track_artists': songs[track_index].artists,
                             'album_cover': songs[track_index].album_cover_img_url,
                         }
                         // left_tracks.push({
@@ -546,6 +547,7 @@ closeButton.addEventListener('click', function() {
                     } else if (swipe_details.direction === 1) {
                         save_state.right_tracks[track_id] = {
                             'track_name': songs[track_index].name,
+                            'track_artists': songs[track_index].artists,
                             'album_cover': songs[track_index].album_cover_img_url,
                         }
                         // right_tracks.push({
@@ -620,9 +622,12 @@ closeButton.addEventListener('click', function() {
                                 }
                                 if (track_index === song_url.length) {
                                     // Save the playlist to local storage
-                                    removePlaylist();
-                                    
-                                    window.location.reload();
+                                    //removePlaylist();
+                                    let params = new URLSearchParams();
+                                    params.set('user_id', user_id);
+                                    params.set('playlist_id', playlist_id);
+
+                                    window.location.href = window.location.pathname.replace('cards', 'stagingarea') + `?${params.toString()}`;
                                 }
                                 updateSongCard(songIndex, "last_song_card");
                                 completed_swipe = false;
