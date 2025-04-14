@@ -85,9 +85,9 @@ $(document).ready(async function () {
         } else {
             // They have Saved Data - pull playlist those first
             // Check each playlist ID in user.playlists (from localStorage)
-            for (const savedPlaylist of user.playlists) {
+            for (const savedPlaylist of Object.keys(user)) {
                 // Get the playlist ID from localStorage
-                const savedPlaylistId = savedPlaylist.playlist_id;
+                const savedPlaylistId = savedPlaylist;
                 
                 // Assume the playlist is missing from API results until proven otherwise
                 let foundInApiResults = checkIfPlaylistExists(savedPlaylistId);

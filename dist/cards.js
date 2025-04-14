@@ -31,6 +31,7 @@ $(document).ready(async function () {
     // Needed data for stuff
     let playlist_name = null;
     let playlist_id = null;
+    let total_tracks = null;
 
     // Get User Data
     let user_id = await getUserId();
@@ -67,6 +68,7 @@ $(document).ready(async function () {
         
         const data = await response.json();
         songs = data.tracks.sort(() => Math.random() - 0.5);  
+        total_tracks = data.tracks.length;
 
         playlist_title = document.getElementById('playlist_title_variable');
         // Overlay Items
@@ -100,6 +102,14 @@ $(document).ready(async function () {
             localStorage.setItem(user_id, JSON.stringify(user));
         } else {
             save_state = user[playlist_id];
+
+            if (Object.keys(save_state.left_tracks).length + Object.keys(save_state.right_tracks).length == total_tracks) {
+                let params = new URLSearchParams();
+                params.set('user_id', user_id);
+                params.set('playlist_id', playlist_id);
+
+                window.location.href = window.location.pathname.replace('cards', 'stagingarea') + `?${params.toString()}`;
+            }
             // declare user status
             // user_status = 3;
             // current user's playlist if its the same one
