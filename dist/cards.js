@@ -91,14 +91,14 @@ $(document).ready(async function () {
         user = JSON.parse(localStorage.getItem(user_id));
         console.log(user);
         if (user === null) {
-            save_state = {'left_tracks': {}, 'right_tracks': {}, 'index': 0};
+            save_state = createTracksObject();
             to_save = { [playlist_id]: save_state }
             localStorage.setItem(user_id, JSON.stringify(to_save));
             // new person hehe
             // user_status = 1;
         } else if (user[playlist_id] == null) {
-            user[playlist_id] = {'left_tracks': {}, 'right_tracks': {}, 'index': 0};
-            save_state = {'left_tracks': {}, 'right_tracks': {}, 'index': 0};
+            user[playlist_id] = createTracksObject();
+            save_state = createTracksObject();
             localStorage.setItem(user_id, JSON.stringify(user));
         } else {
             save_state = user[playlist_id];
@@ -286,18 +286,9 @@ $(".song_button").click(function() {
 });
 
 $(".back_button").click(function() {
-    save(playlist_id, save_state);
+    save(playlist_id, save_state, user_id);
     window.location.href = "playlists.html";
 });
-
-// Saves the JSON
-function save(playlist_id, save_state) {
-    //const thisJSON = getJSON();
-    let data = JSON.parse(localStorage.getItem(user_id))
-    data[playlist_id] = save_state
-    localStorage.setItem(user_id, JSON.stringify(data));
-    console.log(save_state);
-}
 
 // Restart Song Button aka start from 0
 $(".song_restart").click(function() {
@@ -349,16 +340,6 @@ function getJSON() {
     }
 }
 
-function getPlaylist() {
-    const thisPlaylist = {
-        playlist_id: playlist_id,
-        left_tracks: left_tracks,
-        right_tracks: right_tracks,
-        index: track_index
-    };
-    return thisPlaylist;
-}
-
 function removePlaylist() {
     if (user_status === 1) {
         // Do NOT SAVE
@@ -396,20 +377,6 @@ async function getUserId() {
     const response_user = await fetch(request_user);
     const data_user = await response_user.json();
     return data_user.id;
-}
-
-function reloadPlaylist(reference, target) {
-    for (let x = 0; x < reference.length; x++) {
-        const song_index = target.findIndex(target => target.track_id === reference[x]);
-        
-        // Confirm index is found
-        if (song_index !== -1) {
-        // remove 'seen' tracks from current playlist to simulate where you last left off
-            target.splice(song_index, 1);
-        } else {
-            alert("Cannot find Reference or Target")
-        }
-    }
 }
 
 // Function to have an overlay when loading in songs
@@ -542,30 +509,23 @@ closeButton.addEventListener('click', function() {
                 if (swipe_details.distance > DISTANCE_TO_SWIPE) {
                     let track_id = songs[track_index].track_id;
                     if (swipe_details.direction === -1) {
-                        console.log(songs[track_index])
-                        save_state.left_tracks[track_id] = {
-                            'track_name': songs[track_index].name,
-                            'track_artists': songs[track_index].artists,
-                            'album_cover': songs[track_index].album_cover_img_url,
-                        }
+                        console.log(songs[track_index]);
+                        save_state = saveTrack(save_state, 'left', track_id, track_index, songs);
                         // left_tracks.push({
                         //     'track_id': songs[track_index].track_id,
                         //     'track_name': songs[track_index].name,
                         //     'album_cover': songs[track_index].album_cover_img_url,
                         // });
-                        save(playlist_id, save_state)
+                        save(playlist_id, save_state, user_id)
                     } else if (swipe_details.direction === 1) {
-                        save_state.right_tracks[track_id] = {
-                            'track_name': songs[track_index].name,
-                            'track_artists': songs[track_index].artists,
-                            'album_cover': songs[track_index].album_cover_img_url,
-                        }
+                        console.log(songs[track_index]);
+                        save_state = saveTrack(save_state, 'right', track_id, track_index, songs);
                         // right_tracks.push({
                         //     'track_id': songs[track_index].track_id,
                         //     'track_name': songs[track_index].name,
                         //     'album_cover': songs[track_index].album_cover_img_url,
                         // });
-                        save(playlist_id, save_state)
+                        save(playlist_id, save_state, user_id);
                     }
                     // Plays new song after swipe
                     track_index += 1;
