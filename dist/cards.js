@@ -20,11 +20,11 @@ $(document).ready(async function () {
     // Overlay Variables
     overlay_playlist_title = document.getElementById('loading_playlist_title_variable');
     // Song_player object
-        // Empty song file instead of null
+    // Empty song file instead of null
     let song_player = new Audio("https://bigsoundbank.com/UPLOAD/mp3/0917.mp3");
     // Variable to control if playing
     let isPlaying = true;
-    
+
     // Get Specific Playlist
     var songs = null;
 
@@ -65,17 +65,17 @@ $(document).ready(async function () {
             renderError('Playlist is not compatible.');
             return;
         }
-        
+
         const data = await response.json();
-        songs = data.tracks.sort(() => Math.random() - 0.5);  
+        songs = data.tracks.sort(() => Math.random() - 0.5);
         total_tracks = data.tracks.length;
 
         playlist_title = document.getElementById('playlist_title_variable');
         // Overlay Items
         const overlay_playlist_name = document.getElementById('loading_title');
-            // Get Playlist Name
+        // Get Playlist Name
         overlay_playlist_name.textContent = (data.name);
-            // Get Album Cover
+        // Get Album Cover
         const loading_album_art = document.getElementById('loading_album_art');
         loading_album_art.src = data.img_url;
         // Save the name of the playlist for now
@@ -129,10 +129,10 @@ $(document).ready(async function () {
 
     console.log(save_state)
     // remove songs from the Songs array if there is any
-    if (save_state.right_tracks != {}){
+    if (save_state.right_tracks != {}) {
         reloadPlaylist(Object.keys(save_state.right_tracks), songs);
     }
-    if (save_state.left_tracks != {}){
+    if (save_state.left_tracks != {}) {
         reloadPlaylist(Object.keys(save_state.left_tracks), songs);
     }
 
@@ -147,29 +147,29 @@ $(document).ready(async function () {
         // Declare empty
         let song_url = [];
         for (let i = 0; i < songs.length; i++) {
-                // Use songs[i] to access the current song, not song
-                let songPreview_url = new URL(`${API_URI}/song`);
-                songPreview_url.searchParams.set('track_id', songs[i].track_id);
-                
-                // API Request
-                const songPreview_request = new Request(songPreview_url.toString(), {
-                    method: 'GET',
-                    headers: headers,
-                });
-                
-                try {
-                    // Fetch MP3 URL
-                    const response = await fetch(songPreview_request);
-                    const data = await response.json();
-                    song_url.push(data);
-                    overlay_playlist_title.innerHTML = (`Loading Songs ... ${i+1}/${songs.length}`);
-                } catch (error) {
-                    console.error(`Error fetching song ${i+1}:`, error);
-                }
+            // Use songs[i] to access the current song, not song
+            let songPreview_url = new URL(`${API_URI}/song`);
+            songPreview_url.searchParams.set('track_id', songs[i].track_id);
+
+            // API Request
+            const songPreview_request = new Request(songPreview_url.toString(), {
+                method: 'GET',
+                headers: headers,
+            });
+
+            try {
+                // Fetch MP3 URL
+                const response = await fetch(songPreview_request);
+                const data = await response.json();
+                song_url.push(data);
+                overlay_playlist_title.innerHTML = (`Loading Songs ... ${i + 1}/${songs.length}`);
+            } catch (error) {
+                console.error(`Error fetching song ${i + 1}:`, error);
             }
-            // Show Button Because it is finished Loading
-            closeButton.classList.remove('hidden');
-            return song_url;
+        }
+        // Show Button Because it is finished Loading
+        closeButton.classList.remove('hidden');
+        return song_url;
     }
 
     // Refactor function to stop playing
@@ -188,29 +188,29 @@ $(document).ready(async function () {
             })
             .catch(error => {
                 // Use switch statement to handle different error types
-            switch (error.name) {
-                case 'NotSupportedError':
-                    console.log(song_url[track_index]);
-                    console.error("The audio format is not supported by this browser:", error);
-                    alert("Audio Not Supported");
-                break;
-                
-                case 'AbortError':
-                    console.error("Playback was aborted:", error);
-                    alert("Playback was aborted :P");
-                break;
-                
-                case 'NotAllowedError':
-                    console.error("Playback not allowed (autoplay policy):", error);
-                    alert("Please interact with the page first to enable audio playback.");
-                break;
-                
-                default:
-                    // Handle any other errors
-                    console.error("Error playing audio:", error);
-                    alert("Audio Playback Error");
-                break;
-            }
+                switch (error.name) {
+                    case 'NotSupportedError':
+                        console.log(song_url[track_index]);
+                        console.error("The audio format is not supported by this browser:", error);
+                        alert("Audio Not Supported");
+                        break;
+
+                    case 'AbortError':
+                        console.error("Playback was aborted:", error);
+                        alert("Playback was aborted :P");
+                        break;
+
+                    case 'NotAllowedError':
+                        console.error("Playback not allowed (autoplay policy):", error);
+                        alert("Please interact with the page first to enable audio playback.");
+                        break;
+
+                    default:
+                        // Handle any other errors
+                        console.error("Error playing audio:", error);
+                        alert("Audio Playback Error");
+                        break;
+                }
                 notPlaying();
             });
     }
@@ -220,7 +220,7 @@ $(document).ready(async function () {
         // Make sure it is a valid index
         if (index >= 0 && index < song_url.length) {
             const this_song = song_url[index];
-            
+
             // Make sure song_player is defined and is an audio element
             if (song_player && song_player instanceof HTMLAudioElement) {
                 song_player.src = this_song;
@@ -229,7 +229,7 @@ $(document).ready(async function () {
             } else {
                 console.error("song_player is not properly defined");
             }
-        // Error handling for when its bad
+            // Error handling for when its bad
         } else {
             alert("Error with indexing in song_player");
         }
@@ -253,8 +253,8 @@ $(document).ready(async function () {
 
     // max length of 24 for now
     function truncateString(max_length, string) {
-        if (string.length > max_length){
-            return string.substring(0,max_length) + " . . ."
+        if (string.length > max_length) {
+            return string.substring(0, max_length) + " . . ."
         }
         return string
     }
@@ -266,91 +266,91 @@ $(document).ready(async function () {
     songIndex += 1;
     updateSongCard(songIndex, "last_song_card");
 
-// Play/pause toggle button
-$(".song_button").click(function() {
-    // Make sure we have a song player
-    if (!song_player) {
-        console.error("No audio player available");
-        return;
-    }
-    
-    // Toggle play state
-    if (isPlaying) {
-        // Currently playing, so pause
-        song_player.pause();
-        notPlaying();
-    } else {
-        // Currently paused, so play
+    // Play/pause toggle button
+    $(".song_button").click(function () {
+        // Make sure we have a song player
+        if (!song_player) {
+            console.error("No audio player available");
+            return;
+        }
+
+        // Toggle play state
+        if (isPlaying) {
+            // Currently playing, so pause
+            song_player.pause();
+            notPlaying();
+        } else {
+            // Currently paused, so play
+            playSong();
+        }
+    });
+
+    $(".back_button").click(function () {
+        save(playlist_id, save_state, user_id);
+        window.location.href = "playlists.html";
+    });
+
+    // Restart Song Button aka start from 0
+    $(".song_restart").click(function () {
+        // Make sure we have a song player
+        if (!song_player) {
+            console.error("No audio player available");
+            return;
+        }
+        song_player.currentTime = 0;
         playSong();
-    }
-});
+    });
 
-$(".back_button").click(function() {
-    save(playlist_id, save_state, user_id);
-    window.location.href = "playlists.html";
-});
+    song_player.addEventListener('ended', function () {
+        notPlaying();
+    });
 
-// Restart Song Button aka start from 0
-$(".song_restart").click(function() {
-    // Make sure we have a song player
-    if (!song_player) {
-        console.error("No audio player available");
-        return;
-    }
-    song_player.currentTime = 0;
-    playSong();
-});
-
-song_player.addEventListener('ended', function() {
-    notPlaying();
-});
-
-// Make save JSON
+    // Make save JSON
     // Function for when there is a new user so this is there new playlist addition
-function getJSON() {
-    // make playlist object
-    thisPlaylist = getPlaylist();
+    function getJSON() {
+        // make playlist object
+        thisPlaylist = getPlaylist();
 
 
 
-    //make user Json based on status
-    if (user_status === 1) {
-        const username_id = {
-            playlists: [thisPlaylist]
-        };
-        return username_id;
-    } else if (user_status === 3) { // User is working on new playlist
-        // Make the object an array first
-        user.playlists.push(thisPlaylist);
-        return user;
-    } else if (user_status === 2) {
-        // find playlist index in the array
-        const playlist_index = user.playlists.findIndex(playlist => playlist.playlist_id === playlist_id);
-        
-        // Confirm index is found
-        if (playlist_index !== -1) {
-        // remove recent save
-            user.playlists.splice(playlist_index, 1);
-            // push new save in
+        //make user Json based on status
+        if (user_status === 1) {
+            const username_id = {
+                playlists: [thisPlaylist]
+            };
+            return username_id;
+        } else if (user_status === 3) { // User is working on new playlist
+            // Make the object an array first
             user.playlists.push(thisPlaylist);
             return user;
-        } else {
-            alert("Cannot find playlist")
+        } else if (user_status === 2) {
+            // find playlist index in the array
+            const playlist_index = user.playlists.findIndex(playlist => playlist.playlist_id === playlist_id);
+
+            // Confirm index is found
+            if (playlist_index !== -1) {
+                // remove recent save
+                user.playlists.splice(playlist_index, 1);
+                // push new save in
+                user.playlists.push(thisPlaylist);
+                return user;
+            } else {
+                alert("Cannot find playlist")
+            }
         }
     }
-}
 
-function removePlaylist() {
-    if (user_status === 1) {
-        // Do NOT SAVE
-        return;
-    }
-    // If user was working on a playlist, remove it from local storage as they are done
-    // Finds location of playlist in the array
-    const playlist_index = user.playlists.findIndex(playlist => playlist.playlist_id === playlist_id);
-    // Removes that playlist because reviewing playlist is over
-    if (playlist_index !== -1) {
-        // remove playlist
+    function removePlaylist() {
+        if (user_status === 1) {
+            // Do NOT SAVE
+            return;
+        }
+        // If user was working on a playlist, remove it from local storage as they are done
+        // Finds location of playlist in the array
+        const playlist_index = user.playlists.findIndex(playlist => playlist.playlist_id === playlist_id);
+        // Removes that playlist because reviewing playlist is over
+        if (playlist_index !== -1) {
+            // remove playlist
             user.playlists.splice(playlist_index, 1);
             // If theres no more playlists saved, delete local record
             if (user.playlists.length === 0) {
@@ -359,36 +359,36 @@ function removePlaylist() {
                 // Update the user data in localStorage
                 localStorage.setItem(user_id, JSON.stringify(user));
             }
-    } else {
-        console.log("Cannot find playlist when removing");
+        } else {
+            console.log("Cannot find playlist when removing");
+        }
+
     }
-    
-}
 
-// Get UserID
-async function getUserId() {
-    if (checkAccessTokenExpiration()) access_token = refreshAccessToken();
-    if (access_token == null) renderError('Error refreshing access token.');
-    const request_user = new Request(`${API_URI}/user`, {
-        method: 'GET',
-        headers: headers,
-    });
+    // Get UserID
+    async function getUserId() {
+        if (checkAccessTokenExpiration()) access_token = refreshAccessToken();
+        if (access_token == null) renderError('Error refreshing access token.');
+        const request_user = new Request(`${API_URI}/user`, {
+            method: 'GET',
+            headers: headers,
+        });
 
-    const response_user = await fetch(request_user);
-    const data_user = await response_user.json();
-    return data_user.id;
-}
+        const response_user = await fetch(request_user);
+        const data_user = await response_user.json();
+        return data_user.id;
+    }
 
-// Function to have an overlay when loading in songs
-const overlay = document.getElementById('overlay');
+    // Function to have an overlay when loading in songs
+    const overlay = document.getElementById('overlay');
 
-// Close overlay when button is clicked
-closeButton.addEventListener('click', function() {
-    overlay.classList.add('hidden');
-    // Starts playing by default
+    // Close overlay when button is clicked
+    closeButton.addEventListener('click', function () {
+        overlay.classList.add('hidden');
+        // Starts playing by default
         // Plays song at the start of the tracklist
-    songPlayer(track_index);
-});
+        songPlayer(track_index);
+    });
 
     //! Listener for reloading app for testing on mobile (REMOVE LATER)
     // $("#playlist_title").on("click touchstart", function (e) {
@@ -417,20 +417,21 @@ closeButton.addEventListener('click', function() {
      */
     function computeSwipeDetails(event) {
         let clientX, clientY;
-    
-        if (event.touches) {
-            // Handle touch event
+
+        // Handle both touch and mouse events
+        if (event.type === "touchmove") {
+            // Touch event
             clientX = event.touches[0].clientX;
             clientY = event.touches[0].clientY;
         } else {
-            // Handle mouse event
+            // Mouse event
             clientX = event.clientX;
             clientY = event.clientY;
         }
-    
+
         swipe_start = [startX, startY];
         swipe_current = [clientX, clientY];
-    
+
         // Compute the distance (Euclidean distance)
         let sumOfSquares = 0;
         for (let i = 0; i < swipe_start.length; i++) {
@@ -440,7 +441,7 @@ closeButton.addEventListener('click', function() {
         const distance = Math.sqrt(sumOfSquares);
         const angle = getAngle(swipe_start, swipe_current);
         let direction;
-    
+
         if (angle < 180 + ANGLE_OF_ALLOWANCE / 2 && angle > 180 - ANGLE_OF_ALLOWANCE / 2) {
             direction = -1;
         } else if (angle > 360 - ANGLE_OF_ALLOWANCE / 2 || angle < 0 + ANGLE_OF_ALLOWANCE / 2) {
@@ -448,14 +449,14 @@ closeButton.addEventListener('click', function() {
         } else {
             direction = 0;
         }
-    
+
         return {
-            distance: distance, 
-            angle: angle,       
-            direction: direction 
+            distance: distance,
+            angle: angle,
+            direction: direction
         };
     }
-    
+
 
     /**
      * Calculates the angle between two points in a 2D plane.
@@ -479,20 +480,30 @@ closeButton.addEventListener('click', function() {
         return angleDeg;
     }
 
-    // When finger is pressed on card...
-    $("#app_container").on("touchstart", "#song_card", function (event) {
-        tracking = true; // Start tracking finger travel distance
+    // When finger is pressed on card or mouse button is clicked...
+    $("#app_container").on("touchstart mousedown", "#song_card", function (event) {
+        tracking = true; // Start tracking movement distance
 
-        let touch = event.touches[0]; // Get first touch point
-        startX = touch.clientX;
-        startY = touch.clientY;
+        // Handle both touch and mouse events
+        if (event.type === "touchstart") {
+            let touch = event.touches[0]; // Get first touch point
+            startX = touch.clientX;
+            startY = touch.clientY;
+        } else {
+            // Mouse event
+            startX = event.clientX;
+            startY = event.clientY;
+        }
+
+        // Prevent default behavior to avoid text selection during drag
+        event.preventDefault();
     });
 
-    // While finger is moving...
-    $("#app_container").on("touchmove", "#song_card", function (event) {
+    // While finger is moving or mouse is being dragged...
+    $("#app_container").on("touchmove mousemove", function (event) {
         if (tracking) {
             swipe_details = computeSwipeDetails(event);
-            
+
             // If swipe has been determined as valid and within angle of allowance
             if (swipe_details.direction == -1 || swipe_details.direction == 1) {
                 swipe_percentage = swipe_details.distance / SWIPE_SENSITIVITY;
@@ -511,20 +522,10 @@ closeButton.addEventListener('click', function() {
                     if (swipe_details.direction === -1) {
                         console.log(songs[track_index]);
                         save_state = saveTrack(save_state, 'left', track_id, track_index, songs);
-                        // left_tracks.push({
-                        //     'track_id': songs[track_index].track_id,
-                        //     'track_name': songs[track_index].name,
-                        //     'album_cover': songs[track_index].album_cover_img_url,
-                        // });
                         save(playlist_id, save_state, user_id)
                     } else if (swipe_details.direction === 1) {
                         console.log(songs[track_index]);
                         save_state = saveTrack(save_state, 'right', track_id, track_index, songs);
-                        // right_tracks.push({
-                        //     'track_id': songs[track_index].track_id,
-                        //     'track_name': songs[track_index].name,
-                        //     'album_cover': songs[track_index].album_cover_img_url,
-                        // });
                         save(playlist_id, save_state, user_id);
                     }
                     // Plays new song after swipe
@@ -574,7 +575,7 @@ closeButton.addEventListener('click', function() {
                             // Wait for the transition to finish, then remove transition property
                             $last.one("transitionend", function () {
                                 // Remove all transition properties to start with clean slate for future swipes
-                                $next.css("transition", ""); 
+                                $next.css("transition", "");
                                 $current.css("transition", "");
                                 $last.css("transition", "");
                                 $last.find(".song_info_container").show();
@@ -585,14 +586,11 @@ closeButton.addEventListener('click', function() {
                                 $last.attr("id", "next_song_card");
 
                                 // Temporary population of final card
-                                //! IMPORTANT : THIS IS WHERE NEW SONGS NEED TO BE PLACED VIA API TO BE ADDED TO SWIPING ROTATION ! ! ! ! ! ! 
                                 if (songIndex < song_url.length - 1) {
-                                    songIndex  += 1;
+                                    songIndex += 1;
                                     console.log(track_index);
                                 }
                                 if (track_index === song_url.length) {
-                                    // Save the playlist to local storage
-                                    //removePlaylist();
                                     let params = new URLSearchParams();
                                     params.set('user_id', user_id);
                                     params.set('playlist_id', playlist_id);
@@ -610,17 +608,132 @@ closeButton.addEventListener('click', function() {
         }
     });
 
-    // When finger is lifted...
-    $("#app_container").on("touchend", "#song_card", function (event) {
+    // When finger is lifted or mouse button is released...
+    $(document).on("touchend mouseup mouseleave", function (event) {
         // If swipe has not been finished
-        if (completed_swipe == false) {
-            tracking = false; // Stop tracking when finger is lifted
+        if (tracking && completed_swipe == false) {
+            tracking = false; // Stop tracking
 
             // Reset to original position and rotation
             $("#song_card").css({
-                'transition': 'transform 0.2s',             
-                'transform': 'translateX(0px) rotate(0deg)' 
+                'transition': 'transform 0.2s',
+                'transform': 'translateX(0px) rotate(0deg)'
             });
         }
+
+        // Always reset tracking when mouse leaves window
+        if (event.type === "mouseleave") {
+            tracking = false;
+        }
     });
+
+    // Add keyboard event listener to document
+$(document).keydown(function(event) {
+    // Only process arrow keys if we're not already tracking a swipe
+    if (!tracking && !completed_swipe) {
+        const card = document.getElementById("song_card");
+        
+        // Left arrow key (37) for left swipe
+        if (event.keyCode === 37) {
+            simulateSwipe(-1); // Left direction
+        }
+        // Right arrow key (39) for right swipe
+        else if (event.keyCode === 39) {
+            simulateSwipe(1); // Right direction
+        }
+    }
+});
+
+// Function to simulate a swipe programmatically
+function simulateSwipe(direction) {
+    // Prevent multiple swipes while animation is in progress
+    if (completed_swipe) return;
+    
+    completed_swipe = true;
+    const card = document.getElementById("song_card");
+    
+    // Add transition for smooth animation
+    $("#song_card").css({
+        'transition': 'transform 0.3s ease-out'
+    });
+    
+    // Calculate the final position and rotation
+    const finalX = direction * window.innerWidth * 1.5;
+    const finalRotation = direction * 30;
+    
+    // Apply transform to swipe the card
+    $("#song_card").css({
+        'transform': `translateX(${finalX}px) rotate(${finalRotation}deg)`
+    });
+    
+    // Process the swipe action (save track etc.)
+    let track_id = songs[track_index].track_id;
+    if (direction === -1) {
+        console.log(songs[track_index]);
+        save_state = saveTrack(save_state, 'left', track_id, track_index, songs);
+        save(playlist_id, save_state, user_id);
+    } else if (direction === 1) {
+        console.log(songs[track_index]);
+        save_state = saveTrack(save_state, 'right', track_id, track_index, songs);
+        save(playlist_id, save_state, user_id);
+    }
+    
+    // Play next song
+    track_index += 1;
+    save_state.index = track_index;
+    if (track_index < song_url.length) {
+        songPlayer(track_index);
+    }
+    
+    // Handle card animation and replacement (reusing the existing transition code)
+    $("#song_card").one('transitionend', function () {
+        // Variables for readability
+        let $next = $("#next_song_card");
+        let $current = $("#song_card");
+
+        // Clone final song card upward
+        let $last = $("#last_song_card").clone();
+        $next.after($last);
+
+        // Ensure the transition is applied to all involved elements before class swap
+        $next.css("transition", "all 0.05s ease-in-out");
+        $last.css("transition", "all 0.1s ease-in-out");
+
+        // Add a small delay to ensure the $last element is rendered properly
+        setTimeout(() => {
+            // Swap classes and apply transitions (Moving both cards upward to fill space left by swipe)
+            $next.addClass("song_card").removeClass("next_song_card");
+            $last.addClass("next_song_card").removeClass("last_song_card");
+
+            // Wait for the transition to finish, then remove transition property
+            $last.one("transitionend", function () {
+                // Remove all transition properties to start with clean slate for future swipes
+                $next.css("transition", ""); 
+                $current.css("transition", "");
+                $last.css("transition", "");
+                $last.find(".song_info_container").show();
+
+                // Swap IDs
+                $current.remove();  // Delete swiped card element
+                $next.attr("id", "song_card");  // Move other two upward
+                $last.attr("id", "next_song_card");
+
+                // Temporary population of final card
+                if (songIndex < song_url.length - 1) {
+                    songIndex += 1;
+                    console.log(track_index);
+                }
+                if (track_index === song_url.length) {
+                    let params = new URLSearchParams();
+                    params.set('user_id', user_id);
+                    params.set('playlist_id', playlist_id);
+
+                    window.location.href = window.location.pathname.replace('cards', 'stagingarea') + `?${params.toString()}`;
+                }
+                updateSongCard(songIndex, "last_song_card");
+                completed_swipe = false;
+            });
+        }, 10); // Delay the class swapping to allow for smooth transition
+    });
+}
 });
