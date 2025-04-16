@@ -413,7 +413,9 @@ $(document).ready(async function () {
 
     //! Swiping action listener and logic
     const SWIPE_SENSITIVITY = window.innerWidth / 1;    // Animation sensitivity
-    const DISTANCE_TO_SWIPE = window.innerWidth / 3;    // Distance it takes to fully swipe either left or right
+    const wrapper = document.querySelector('.mobile-wrapper');
+    const DISTANCE_TO_SWIPE = wrapper ? wrapper.offsetWidth / 3 : window.innerWidth / 3;
+    
     const ANGLE_OF_ALLOWANCE = 90;    // The angle width directly left and right that is allowed for swiping
 
     let tracking = false;
