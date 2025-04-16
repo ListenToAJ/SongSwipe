@@ -632,7 +632,7 @@ closeButton.addEventListener('click', async function() {
                                             await sendTrackTime(playlist_id, user_id, element['track_id'], element['song_name'], element['swipe_time'], element['direction']);
                                         });
 
-                                        let completion_time = getSecondsSinceEpoch() - total_time;
+                                        let completion_time = (getSecondsSinceEpoch() - total_time) / SEC_PER_MIN;
                                         sendElapsedTime(playlist_id, user_id, completion_time);
                                     }
 

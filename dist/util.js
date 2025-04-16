@@ -8,6 +8,8 @@ const API_URI = function() {
     return uri + '/.netlify/functions/api';
 }();
 
+const SEC_PER_MIN = 60;
+
 const getSecondsSinceEpoch = () => Math.floor(Date.now() / 1000);
 
 /*

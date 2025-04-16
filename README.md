@@ -56,14 +56,19 @@ SPOTIFY_CLIENT_ID=<YOUR SPOTIFY CLIENT ID>
 SPOTIFY_CLIENT_SECRET=<YOUR SPOTIFY SECRET>
 REDIRECT_URI_AUTH=http://127.0.0.1:9000/.netlify/functions/api/auth/callback
 REDIRECT_URI_HOME=http://127.0.0.1:8080/playlists.html
+METRICS_ENABLED=<true or false>
 ```
-You may also need to edit the sixth line of `dist/playlist.js` if you change the port that the backend api runs off of. 
+You may also need to edit the sixth line of `dist/util.js` if you change the port that the backend api runs off of. 
 
 At the current moment our application requires a server that is distributing the `dist` directory of the project to be able to function. This is to emulate what is eventually going to be hosted on netlify. Our dependencies include the `http-server` node module that can be used for this however, if it does not work you can install it with the following command.
 ```
 npm install http-server
 ```
 Editors like Visual Studio Code also have extensions that can provide a live http-server. If you decide to use something like that instead make sure you update the URIs accordingly. We will attempt to make this a more streamlined thing for running locally as the project progresses.
+
+If metrics are enabled then on completion of going through a playlist the following metrics will be written to a file in the `data` directory. 
+- Per song: The total amount of time spent on the song, direction swiped, and song information. 
+- Per playlist: The total amount of time it took to go through the playlist.
 
 ### Running Locally
 
@@ -72,10 +77,9 @@ Once dependencies are installed and the `.env` file iat the moment as well due t
 npm start (will just run the backend express app, use if you plan to use your own http server to distribute the frontend)
 npm run dev (will launch both a server to distribute the frontend and execute the backend)
 ```
-At the current moment we do not have a landing page set up so to check out what we have for the application you can go to either of these urls. Please note port `8080` is the default port for `http-server` and port `9000` is the default port for the express backend so if you decide to change them make sure you update the urls accordingly. 
+The below URL will bring you to the landing page for the application. Please note port `8080` is the default port for `http-server` and port `9000` is the default port for the express backend so if you decide to change them make sure you update the urls accordingly. 
 ```
-http://127.0.0.1:8080/index.html (song swiping demo, mobile only)
-http://127.0.0.1:9000/.netlify/functions/api/auth/login (will ask you to sign in then redirect you to the work in progres playlist selection screen)
+http://127.0.0.1:8080/index.html 
 ```
 
 Our unit tests can be ran with the following command.
