@@ -90,8 +90,8 @@ body{
 @media only screen and (hover: hover) and (pointer: fine) {
     .mobile-wrapper {
         aspect-ratio: 9 / 16;
-        max-height: 90vh;
-        max-width: calc(90vh * 9 / 16);
+        max-height: 100vh;
+        max-width: calc(100vh * 9 / 16);
         margin: 0 auto;
     }
 }
@@ -509,7 +509,7 @@ transform: translateX(200px) rotate(20deg);
     position: absolute;
     z-index: 1001;
     margin-top: 15px;
-    bottom: 20px;
+    bottom: 5vh;
     padding: 28px 46px;
     background-color: #14191d;
     color: white;
