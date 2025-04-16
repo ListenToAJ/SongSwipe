@@ -2,6 +2,7 @@ import { ERROR_RESPONSES, generateRandomString, StatusCodes } from "./util";
 import { config } from 'dotenv';
 import { fetchPlaylist, fetchUserInfo, fetchUserPlaylists, buildPlaylist, removeSongsFromPlaylist, createPlaylist, addSongsToPlaylist } from "./spotify-interactions";
 import { getSpotifyPreviewUrl } from "./spotify-preview";
+import * as fs from 'fs';
 
 // Load .env with Spotify credentials & set constants for env secrets
 config();
@@ -9,6 +10,7 @@ const spotify_client_id = process.env.SPOTIFY_CLIENT_ID ?? "";
 const spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET ?? "";
 const redirect_uri = process.env.REDIRECT_URI_AUTH ?? "";
 const redirect_home = process.env.REDIRECT_URI_HOME ?? "";
+const metrics_enabled = (process.env.METRICS_ENABLED ?? "") == "true" ? true : false;
 
 /*
  * Endpoint: /auth/login
@@ -346,4 +348,137 @@ export async function songRemove(req: any, res: any) {
     }
 
     res.status(status).json(data);
+}
+
+/*
+* Endpoint: /playlist/information
+* Description: Upload basic information for metrics
+* 
+* Request: 
+*   query_params: playlist_id, user id, username, playlist name
+* 
+* Response: Playlist Snapshot ID
+*
+*/
+export async function metricsInformation(req: any, res: any) {
+    if (metrics_enabled) {
+        let playlist_id = req.query.playlist_id?.toString() ?? "";
+        let user_id = req.query.user_id?.toString() ?? "";
+        let username = req.query.username?.toString() ?? "";
+        let playlist_name = req.query.playlist_name?.toString() ?? "";
+        
+        if (playlist_id == "" || user_id == "" || username == "" || playlist_name == "") {
+            res.status(StatusCodes.BAD_REQUEST).json(ERROR_RESPONSES.MISSING_PARAM);
+            return;
+        }
+
+        const text = `PLAYLIST_NAME=${playlist_name}\nUSER=${username}\n`;
+
+        fs.writeFile(`./data/${user_id}_${playlist_id}_info.txt`, text, (err) => {
+            const headers = `id,name,artists,album,time(Sec),direction\n`;
+            fs.writeFile(`./data/${user_id}_${playlist_id}_actions.csv`, headers, (err) => {
+                if (err) {
+                    console.log(err);
+                    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({'error': 'file writing error'});
+                } else {
+                    res.status(StatusCodes.OK).json({'status': 'success'});
+                }
+            })
+
+        });
+
+    } else {
+        res.status(StatusCodes.BAD_REQUEST).json({ 'error': ERROR_RESPONSES.METRICS_NOT_ENABLED });
+    }
+
+}
+
+/*
+* Endpoint: /metrics/enabled
+* Description: returns whether metrics are enabled or not
+* 
+* Response: a json with the boolean
+*
+*/
+export async function metricsEnabled(req: any, res: any) {
+    let data = { 'enabled': metrics_enabled};
+    res.status(StatusCodes.OK).json(data);
+}
+
+/*
+* Endpoint: /metrics/decision
+* Description: Uploads a decision for the plays
+* 
+* Request: 
+*   query_params: playlist_id, user id
+*   body: song_id, song name, song artists, song album, swipe_time (in seconds), direction
+* 
+* Response: Nothing just status if success or not
+*
+*/
+export async function metricsDecision(req: any, res: any) {
+    if (metrics_enabled) {
+        let playlist_id = req.query.playlist_id?.toString() ?? "";
+        let user_id = req.query.user_id?.toString() ?? "";
+        let song_id = req.query.song_id?.toString() ?? "";
+        let song_name = req.query.song_name?.toString() ?? "";
+        let song_artist = req.query.song_artists?.toString() ?? "";
+        let song_album = req.query.song_album?.toString() ?? "";
+        let swipe_time = req.query.swipe_time?.toString() ?? "";
+        let direction = req.query.direction?.toString() ?? "";
+
+        if (playlist_id == "" || user_id == "" || song_id == "" || song_name == "" || song_artist == "" || song_album == "" || swipe_time == "" || direction == "") {
+            res.status(StatusCodes.BAD_REQUEST).json({ 'error': ERROR_RESPONSES.MISSING_PARAM });
+            return;
+        }
+
+        const line = `${song_id},${song_name},${song_artist},${song_album},${swipe_time},${direction}\n`;
+        fs.appendFile(`./data/${user_id}_${playlist_id}_actions.csv`, line, (err) => {
+            if (err) {
+                console.log(err);
+                res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({'error': 'file writing error'});
+            } else {
+                res.status(StatusCodes.OK).json({'status': 'success'});
+            }
+        })
+
+    } else {
+        res.status(StatusCodes.BAD_REQUEST).json({ 'error': ERROR_RESPONSES.METRICS_NOT_ENABLED });
+    }
+}
+
+/*
+* Endpoint: /metrics/elapsed
+* Description: Upload total elapsed time it took to go through a playlist
+* 
+* Request: 
+*   query_params: playlist_id, user id, total time (in minutes)
+* 
+* Response: Nothing just status if success or not
+*
+*/
+export async function metricsElapsed(req: any, res: any) {
+    if (metrics_enabled) {
+        let playlist_id = req.query.playlist_id?.toString() ?? "";
+        let user_id = req.query.user_id?.toString() ?? "";
+        let total_time = req.query.total_time?.toString() ?? "";
+
+        if (playlist_id == "" || user_id == "" || total_time == "") {
+            res.status(StatusCodes.BAD_REQUEST).json(ERROR_RESPONSES.MISSING_PARAM);
+            return;
+        }
+
+        const text = `TOTAL_TIME=${total_time}`;
+        fs.appendFile(`./data/${user_id}_${playlist_id}_info.txt`, text, (err) => {
+            if (err) {
+                console.log(err);
+                res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({'error': 'file writing error'});
+            } else {
+                res.status(StatusCodes.OK).json({'status': 'success'});
+            }
+        })
+
+    } else {
+        res.status(StatusCodes.BAD_REQUEST).json({ 'error': ERROR_RESPONSES.METRICS_NOT_ENABLED });
+    }
 }

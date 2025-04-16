@@ -18,7 +18,9 @@ export const ERROR_RESPONSES = {
     'NOT_FOUND': { 'error': 'resource not found' },
     'UNHANDLED': { 'error': 'unhandled response code' },
     'REFRESH_ERROR': { 'error' : 'failed to refresh access token' },
-    'RATE_LIMIT_EXCEED': { 'error' : 'application rate limit exceed' }
+    'RATE_LIMIT_EXCEED': { 'error' : 'application rate limit exceed' },
+    'METRICS_NOT_ENABLED': { 'error' : 'metrics are not enabled' },
+    'MISSING_PARAM': {'error' : 'missing parameter'},
 }
 
 /* 
