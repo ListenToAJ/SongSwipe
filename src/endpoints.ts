@@ -375,8 +375,8 @@ export async function metricsInformation(req: any, res: any) {
         const text = `PLAYLIST_NAME=${playlist_name}\nUSER=${username}\n`;
 
         fs.writeFile(`./data/${user_id}_${playlist_id}_info.txt`, text, (err) => {
-            const headers = `song_id,song_name,time_sec,direction\n`;
-            fs.writeFile(`./data/${user_id}_${playlist_id}_actions.txt`, headers, (err) => {
+            const headers = `id,name,artists,album,time(Sec),direction\n`;
+            fs.writeFile(`./data/${user_id}_${playlist_id}_actions.csv`, headers, (err) => {
                 if (err) {
                     console.log(err);
                     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({'error': 'file writing error'});
@@ -394,35 +394,46 @@ export async function metricsInformation(req: any, res: any) {
 }
 
 /*
+* Endpoint: /metrics/enabled
+* Description: returns whether metrics are enabled or not
+* 
+* Response: a json with the boolean
+*
+*/
+export async function metricsEnabled(req: any, res: any) {
+    let data = { 'enabled': metrics_enabled};
+    res.status(StatusCodes.OK).json(data);
+}
+
+/*
 * Endpoint: /metrics/decision
 * Description: Uploads a decision for the plays
 * 
 * Request: 
 *   query_params: playlist_id, user id
-*   body: song_id, song name, swipe_time (in seconds), direction
+*   body: song_id, song name, song artists, song album, swipe_time (in seconds), direction
 * 
 * Response: Nothing just status if success or not
 *
 */
 export async function metricsDecision(req: any, res: any) {
-    let data = undefined;
-    let status = StatusCodes.OK;
-
     if (metrics_enabled) {
         let playlist_id = req.query.playlist_id?.toString() ?? "";
         let user_id = req.query.user_id?.toString() ?? "";
         let song_id = req.query.song_id?.toString() ?? "";
         let song_name = req.query.song_name?.toString() ?? "";
+        let song_artist = req.query.song_artists?.toString() ?? "";
+        let song_album = req.query.song_album?.toString() ?? "";
         let swipe_time = req.query.swipe_time?.toString() ?? "";
         let direction = req.query.direction?.toString() ?? "";
 
-        if (playlist_id == "" || user_id == "" || song_id == "" || song_name == "" || swipe_time == "" || direction == "") {
+        if (playlist_id == "" || user_id == "" || song_id == "" || song_name == "" || song_artist == "" || song_album == "" || swipe_time == "" || direction == "") {
             res.status(StatusCodes.BAD_REQUEST).json({ 'error': ERROR_RESPONSES.MISSING_PARAM });
             return;
         }
 
-        const line = `${song_id},${song_name},${swipe_time},${direction}\n`;
-        fs.appendFile(`./data/${user_id}_${playlist_id}_actions.txt`, line, (err) => {
+        const line = `${song_id},${song_name},${song_artist},${song_album},${swipe_time},${direction}\n`;
+        fs.appendFile(`./data/${user_id}_${playlist_id}_actions.csv`, line, (err) => {
             if (err) {
                 console.log(err);
                 res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({'error': 'file writing error'});
@@ -434,7 +445,6 @@ export async function metricsDecision(req: any, res: any) {
     } else {
         res.status(StatusCodes.BAD_REQUEST).json({ 'error': ERROR_RESPONSES.METRICS_NOT_ENABLED });
     }
-    
 }
 
 /*
@@ -448,9 +458,6 @@ export async function metricsDecision(req: any, res: any) {
 *
 */
 export async function metricsElapsed(req: any, res: any) {
-    let data = undefined;
-    let status = StatusCodes.OK;
-
     if (metrics_enabled) {
         let playlist_id = req.query.playlist_id?.toString() ?? "";
         let user_id = req.query.user_id?.toString() ?? "";
@@ -474,5 +481,4 @@ export async function metricsElapsed(req: any, res: any) {
     } else {
         res.status(StatusCodes.BAD_REQUEST).json({ 'error': ERROR_RESPONSES.METRICS_NOT_ENABLED });
     }
-
 }

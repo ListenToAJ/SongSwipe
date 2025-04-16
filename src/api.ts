@@ -1,7 +1,7 @@
 import express, { Router } from 'express'
 import serverless from 'serverless-http'
 import cors from 'cors';
-import { authCallback, authLogin, authRefresh, playlistBuild, playlistData, userData, userPlaylists, songPreview, songRemove, playlistCreate, songAdd, metricsDecision, metricsElapsed, metricsInformation } from './endpoints';
+import { authCallback, authLogin, authRefresh, playlistBuild, playlistData, userData, userPlaylists, songPreview, songRemove, playlistCreate, songAdd, metricsDecision, metricsElapsed, metricsInformation, metricsEnabled } from './endpoints';
 
 const app = express();
 const router = Router();
@@ -26,6 +26,7 @@ router.delete('/playlist/remove', songRemove);
 // Song related endpoints
 router.get('/song', songPreview);
 // Testing Metrics endpoints
+router.get('/metrics/enabled', metricsEnabled);
 router.post('/metrics/information', metricsInformation);
 router.post('/metrics/decision', metricsDecision);
 router.post('/metrics/elapsed', metricsElapsed);

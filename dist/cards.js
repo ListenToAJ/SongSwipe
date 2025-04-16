@@ -1,3 +1,6 @@
+let total_time = undefined;
+let song_time = undefined;
+
 $(document).ready(async function () {
     // MAKE BUTTON PRETTY
     // alert("Welcome to the SongSwipe demo!\n\nShown here is the swiping interface loaded with a existing Spotify playlist.\n\nSwipe right on songs you like\nSwipe left on ones you don't!")
@@ -13,6 +16,15 @@ $(document).ready(async function () {
     const headers = new Headers();
     headers.set('Authorization', access_token);
     headers.set('Access-Control-Allow-Origin', '*');
+
+    // Check if metrics are enabled and set a boolean to not do the stuff if that aren't enabled
+    let enabledUrl = new URL(`${API_URI}/metrics/enabled`);
+    const enabled_request =  new Request(enabledUrl.toString(), {
+        method: 'GET',
+    });
+    const enabled_response = await fetch(enabled_request);
+    const metrics_enabled = (await enabled_response.json()).enabled;
+    song_metrics = [];
 
     // Hide Overlay Button until all the songs are loaded
     const closeButton = document.getElementById('close-overlay');
@@ -383,9 +395,11 @@ $(document).ready(async function () {
     const overlay = document.getElementById('overlay');
 
     // Close overlay when button is clicked
-    closeButton.addEventListener('click', function () {
+    closeButton.addEventListener('click', async function () {
         overlay.classList.add('hidden');
-        // Starts playing by default
+        total_time = getSecondsSinceEpoch();
+        song_time = getSecondsSinceEpoch();
+    // Starts playing by default
         // Plays song at the start of the tracklist
         songPlayer(track_index);
     });
@@ -399,7 +413,9 @@ $(document).ready(async function () {
 
     //! Swiping action listener and logic
     const SWIPE_SENSITIVITY = window.innerWidth / 1;    // Animation sensitivity
-    const DISTANCE_TO_SWIPE = window.innerWidth / 3;    // Distance it takes to fully swipe either left or right
+    const wrapper = document.querySelector('.mobile-wrapper');
+    const DISTANCE_TO_SWIPE = wrapper ? wrapper.offsetWidth / 3 : window.innerWidth / 3;
+    
     const ANGLE_OF_ALLOWANCE = 90;    // The angle width directly left and right that is allowed for swiping
 
     let tracking = false;
@@ -500,7 +516,7 @@ $(document).ready(async function () {
     });
 
     // While finger is moving or mouse is being dragged...
-    $("#app_container").on("touchmove mousemove", function (event) {
+    $("#app_container").on("touchmove mousemove", async function (event) {
         if (tracking) {
             swipe_details = computeSwipeDetails(event);
 
@@ -517,16 +533,35 @@ $(document).ready(async function () {
                 card.style.transform = `translateX(${translateX}px) rotate(${rotateDeg}deg)`;
 
                 // If the song has been completed_swipe enough to declare it left or right swipe
+                let swipe_time = undefined;
                 if (swipe_details.distance > DISTANCE_TO_SWIPE) {
                     let track_id = songs[track_index].track_id;
                     if (swipe_details.direction === -1) {
                         console.log(songs[track_index]);
                         save_state = saveTrack(save_state, 'left', track_id, track_index, songs);
                         save(playlist_id, save_state, user_id)
+                        swipe_time = getSecondsSinceEpoch() - song_time;
+                        song_metrics.push({
+                            'track_id': track_id,
+                            'song_name': songs[track_index].name,
+                            'swipe_time': swipe_time,
+                            'direction': 'left'
+                        });
+                        if (metrics_enabled) sendTrackTime(playlist_id, user_id, track_id, songs[track_index].name, songs[track_index].artists[0], 
+                            songs[track_index].album_name, swipe_time, 'left');
                     } else if (swipe_details.direction === 1) {
                         console.log(songs[track_index]);
                         save_state = saveTrack(save_state, 'right', track_id, track_index, songs);
                         save(playlist_id, save_state, user_id);
+                        swipe_time = getSecondsSinceEpoch() - song_time;
+                        song_metrics.push({
+                            'track_id': track_id,
+                            'song_name': songs[track_index].name,
+                            'swipe_time': swipe_time,
+                            'direction': 'right'
+                        });
+                        if (metrics_enabled) sendTrackTime(playlist_id, user_id, track_id, songs[track_index].name, songs[track_index].artists[0], 
+                                                           songs[track_index].album_name, swipe_time, 'right');
                     }
                     // Plays new song after swipe
                     track_index += 1;
@@ -537,6 +572,7 @@ $(document).ready(async function () {
 
                     tracking = false;
                     completed_swipe = true;
+                    song_time = getSecondsSinceEpoch();
 
                     // Add transition for smooth animation
                     $("#song_card").css({
@@ -553,7 +589,7 @@ $(document).ready(async function () {
                     });
 
                     // Once front song is fully out of frame
-                    $("#song_card").one('transitionend', function () {
+                    $("#song_card").one('transitionend', async function () {
                         // Variables for readability
                         let $next = $("#next_song_card");
                         let $current = $("#song_card");
@@ -573,7 +609,7 @@ $(document).ready(async function () {
                             $last.addClass("next_song_card").removeClass("last_song_card");
 
                             // Wait for the transition to finish, then remove transition property
-                            $last.one("transitionend", function () {
+                            $last.one("transitionend", async function () {
                                 // Remove all transition properties to start with clean slate for future swipes
                                 $next.css("transition", "");
                                 $current.css("transition", "");
@@ -594,6 +630,15 @@ $(document).ready(async function () {
                                     let params = new URLSearchParams();
                                     params.set('user_id', user_id);
                                     params.set('playlist_id', playlist_id);
+
+                                    if (metrics_enabled) {
+                                        // song_metrics.forEach(async (element) => {
+                                        //     await sendTrackTime(playlist_id, user_id, element['track_id'], element['song_name'], element['swipe_time'], element['direction']);
+                                        // });
+
+                                        let completion_time = (getSecondsSinceEpoch() - total_time) / SEC_PER_MIN;
+                                        await sendElapsedTime(playlist_id, user_id, completion_time);
+                                    }
 
                                     window.location.href = window.location.pathname.replace('cards', 'stagingarea') + `?${params.toString()}`;
                                 }
