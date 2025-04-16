@@ -135,3 +135,34 @@ function moveTrack(target, source, destination, trackId) {
     }
     return target;
 }
+
+async function sendTrackTime(playlist_id, user_id, track_id, track_name, swipe_time, direction) {
+    let params = new URLSearchParams();
+    params.set('playlist_id', playlist_id);
+    params.set('user_id', user_id);
+    params.set('song_id', track_id);
+    params.set('song_name', track_name);
+    params.set('swipe_time', swipe_time);
+    params.set('direction', direction);
+
+    const request = new Request(`${API_URI}/metrics/decision?${params.toString()}`, {
+        method: 'POST',
+    })
+
+    const response = await fetch(request);
+    response.status;
+}
+
+async function sendElapsedTime(playlist_id, user_id, total_time) {
+    let params = new URLSearchParams();
+    params.set('playlist_id', playlist_id);
+    params.set('user_id', user_id);
+    params.set('total_time', total_time);
+
+    const request = new Request(`${API_URI}/metrics/elapsed?${params.toString()}`, {
+        method: 'POST',
+    })
+
+    const response = await fetch(request);
+    response.status;
+}
