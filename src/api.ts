@@ -1,7 +1,7 @@
 import express, { Router } from 'express'
 import serverless from 'serverless-http'
 import cors from 'cors';
-import { authCallback, authLogin, authRefresh, playlistBuild, playlistData, userData, userPlaylists, songPreview, songRemove, playlistCreate, songAdd } from './endpoints';
+import { authCallback, authLogin, authRefresh, playlistBuild, playlistData, userData, userPlaylists, songPreview, songRemove, playlistCreate, songAdd, metricsDecision, metricsElapsed, metricsInformation } from './endpoints';
 
 const app = express();
 const router = Router();
@@ -25,6 +25,10 @@ router.post('/playlist/add', songAdd);
 router.delete('/playlist/remove', songRemove);
 // Song related endpoints
 router.get('/song', songPreview);
+// Testing Metrics endpoints
+router.post('/metrics/information', metricsInformation);
+router.post('/metrics/decision', metricsDecision);
+router.post('/metrics/elapsed', metricsElapsed);
 
 // Netlify API setup
 app.use("/.netlify/functions/api", router);
