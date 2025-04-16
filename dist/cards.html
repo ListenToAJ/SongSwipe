@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <title>SongSwipe</title>
@@ -12,27 +13,29 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Serif+Display:ital@0;1&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Serif+Display:ital@0;1&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
 
     <!-- Enable standalone mode (full-screen) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="My Web App">
-    <meta name="viewport" 
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
-  </head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+</head>
 
 
 <body>
     <div id="overlay">
-        <div class="overlay-content">
-            <div id="loading_header_container">
-                <div id="loading_playlist_title">
-                    <span id="loading_playlist_title_variable" class="bold_title">Loading...</span>
+        <div class="mobile-wrapper">
+            <div class="overlay-content">
+                <div id="loading_header_container">
+                    <div id="loading_playlist_title">
+                        <span id="loading_playlist_title_variable" class="bold_title">Loading...</span>
+                    </div>
                 </div>
-            </div>
-            <div id="loading_song_card" class="card song_card">
-                <img id="loading_album_art" class="album">
+                <div id="loading_song_card" class="card song_card">
+                    <img id="loading_album_art" class="album">
                     <div class="song_info_container">
                         <div class="song_info">
                             <span id="loading_title" class="bold_title"></span><br>
@@ -40,54 +43,57 @@
                         <div class="loading_song_num"></div>
                     </div>
                 </div>
-            <button id="close-overlay">Start</button>
+                <button id="close-overlay">Start</button>
+            </div>
+        </div>
+        </divfo <div class="mobile-wrapper">
+        <div id="app_container">
+            <button class="back_button" title="Go Back"></button>
+            <div id="header_container">
+                <div id="playlist_title">
+                    <span class="subtitle">Current playlist:</span><br>
+                    <span id="playlist_title_variable" class="bold_title">Loading...</span>
+                </div>
+            </div>
+            <div id="song_card" class="card song_card">
+                <img id="album_art" class="album">
+                <div class="song_info_container">
+                    <div class="song_info">
+                        <span class="bold_title"></span><br>
+                        <span class="subtitle"></span>
+                    </div>
+                    <div class="song_num">
+                    </div>
+                </div>
+            </div>
+            <div id="next_song_card" class="card next_song_card">
+                <img id="next_album_art" class="album">
+                <div class="song_info_container">
+                    <div class="song_info">
+                        <span class="bold_title"></span><br>
+                        <span class="subtitle"></span>
+                    </div>
+                    <div class="song_num">
+                    </div>
+                </div>
+            </div>
+            <div id="last_song_card" class="card last_song_card">
+                <img id="last_album_art" class="album">
+                <div class="song_info_container" style="display: none">
+                    <div class="song_info">
+                        <span class="bold_title"></span><br>
+                        <span class="subtitle"></span>
+                    </div>
+                    <div class="song_num">
+                    </div>
+                </div>
+            </div>
+            <div class="button_container">
+                <button class="song_button"></button>
+                <button class="song_restart"></button>
+            </div>
         </div>
     </div>
-    <div id="app_container">
-        <button class="back_button" title="Go Back"></button>
-        <div id="header_container">
-            <div id="playlist_title">
-                <span class="subtitle">Current playlist:</span><br>
-                <span id="playlist_title_variable" class="bold_title">Loading...</span>
-            </div>
-        </div>
-        <div id="song_card" class="card song_card">
-            <img id="album_art" class="album">
-            <div class="song_info_container">
-                <div class="song_info">
-                    <span class="bold_title"></span><br>
-                    <span class="subtitle"></span>  
-                </div>
-                <div class="song_num">
-                </div>
-            </div>
-        </div>
-        <div id="next_song_card" class="card next_song_card">
-            <img id="next_album_art" class="album">
-            <div class="song_info_container">
-                <div class="song_info">
-                    <span class="bold_title"></span><br>
-                    <span class="subtitle"></span>
-                </div>
-                <div class="song_num">
-                </div>
-            </div>
-        </div>
-        <div id="last_song_card" class="card last_song_card">
-            <img id="last_album_art" class="album">
-            <div class="song_info_container" style="display: none">
-                <div class="song_info">
-                    <span class="bold_title"></span><br>
-                    <span class="subtitle"></span>
-                </div>
-                <div class="song_num">
-                </div>
-            </div>
-        </div>
-        <div class = "button_container">
-            <button class = "song_button"></button>
-            <button class = "song_restart"></button>
-        </div>
-    </div>
-  </body>
+</body>
+
 </html>
