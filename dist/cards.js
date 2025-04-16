@@ -1,3 +1,5 @@
+let total_time = undefined;
+let song_time = undefined;
 
 $(document).ready(async function () {
     // MAKE BUTTON PRETTY
@@ -276,9 +278,6 @@ $(document).ready(async function () {
     songIndex += 1;
     updateSongCard(songIndex, "last_song_card");
 
-    let total_time = getSecondsSinceEpoch();
-    let song_time = getSecondsSinceEpoch();
-
 // Play/pause toggle button
 $(".song_button").click(function() {
     // Make sure we have a song player
@@ -398,6 +397,8 @@ const overlay = document.getElementById('overlay');
 // Close overlay when button is clicked
 closeButton.addEventListener('click', async function() {
     overlay.classList.add('hidden');
+    total_time = getSecondsSinceEpoch();
+    song_time = getSecondsSinceEpoch();
     // Starts playing by default
         // Plays song at the start of the tracklist
     songPlayer(track_index);
@@ -538,6 +539,8 @@ closeButton.addEventListener('click', async function() {
                             'swipe_time': swipe_time,
                             'direction': 'left'
                         });
+                        if (metrics_enabled) sendTrackTime(playlist_id, user_id, track_id, songs[track_index].name, songs[track_index].artists[0], 
+                            songs[track_index].album_name, swipe_time, 'left');
                     } else if (swipe_details.direction === 1) {
                         console.log(songs[track_index]);
                         save_state = saveTrack(save_state, 'right', track_id, track_index, songs);
@@ -554,7 +557,8 @@ closeButton.addEventListener('click', async function() {
                             'swipe_time': swipe_time,
                             'direction': 'right'
                         });
-                        //if (metrics_enabled) await sendTrackTime(playlist_id, user_id, track_id, songs[track_index].name, swipe_time, 'right');
+                        if (metrics_enabled) sendTrackTime(playlist_id, user_id, track_id, songs[track_index].name, songs[track_index].artists[0], 
+                                                           songs[track_index].album_name, swipe_time, 'right');
                     }
                     // Plays new song after swipe
                     track_index += 1;
@@ -602,7 +606,7 @@ closeButton.addEventListener('click', async function() {
                             $last.addClass("next_song_card").removeClass("last_song_card");
 
                             // Wait for the transition to finish, then remove transition property
-                            $last.one("transitionend", function () {
+                            $last.one("transitionend", async function () {
                                 // Remove all transition properties to start with clean slate for future swipes
                                 $next.css("transition", ""); 
                                 $current.css("transition", "");
@@ -628,12 +632,12 @@ closeButton.addEventListener('click', async function() {
                                     params.set('playlist_id', playlist_id);
 
                                     if (metrics_enabled) {
-                                        song_metrics.forEach(async (element) => {
-                                            await sendTrackTime(playlist_id, user_id, element['track_id'], element['song_name'], element['swipe_time'], element['direction']);
-                                        });
+                                        // song_metrics.forEach(async (element) => {
+                                        //     await sendTrackTime(playlist_id, user_id, element['track_id'], element['song_name'], element['swipe_time'], element['direction']);
+                                        // });
 
                                         let completion_time = (getSecondsSinceEpoch() - total_time) / SEC_PER_MIN;
-                                        sendElapsedTime(playlist_id, user_id, completion_time);
+                                        await sendElapsedTime(playlist_id, user_id, completion_time);
                                     }
 
                                     window.location.href = window.location.pathname.replace('cards', 'stagingarea') + `?${params.toString()}`;

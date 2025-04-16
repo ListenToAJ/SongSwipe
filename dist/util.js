@@ -138,12 +138,14 @@ function moveTrack(target, source, destination, trackId) {
     return target;
 }
 
-async function sendTrackTime(playlist_id, user_id, track_id, track_name, swipe_time, direction) {
+async function sendTrackTime(playlist_id, user_id, track_id, track_name, track_artists, track_album, swipe_time, direction) {
     let params = new URLSearchParams();
     params.set('playlist_id', playlist_id);
     params.set('user_id', user_id);
     params.set('song_id', track_id);
-    params.set('song_name', track_name);
+    params.set('song_artists', track_artists.replaceAll(",", ""));
+    params.set('song_album', track_album.replaceAll(",", ""));
+    params.set('song_name', track_name.replaceAll(",", ""));
     params.set('swipe_time', swipe_time);
     params.set('direction', direction);
 
