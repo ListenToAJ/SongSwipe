@@ -49,6 +49,17 @@ $(document).ready(async function () {
 
         // Redirect to cards page
         card.addEventListener('click', async () => {
+            // Send request ot create files for metric collection will not do anything if metrics aren't enabled
+            let metrics_params = new URLSearchParams();
+            metrics_params.set('playlist_id', playlist.id);
+            metrics_params.set('user_id', data_user.id);
+            metrics_params.set('username', data_user.display_name);
+            metrics_params.set('playlist_name', playlist.name);
+            const information_metric_request = new Request(`${API_URI}/metrics/information?${metrics_params.toString()}`, {
+                method: 'POST',
+            });
+            await fetch(information_metric_request);
+            
             let params = new URLSearchParams();
             params.set('playlist_id', playlist.id);
 
