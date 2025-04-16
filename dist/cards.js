@@ -711,15 +711,21 @@ function simulateSwipe(direction) {
     
     // Process the swipe action (save track etc.)
     let track_id = songs[track_index].track_id;
+    let swipe_time = getSecondsSinceEpoch() - song_time;
     if (direction === -1) {
         console.log(songs[track_index]);
         save_state = saveTrack(save_state, 'left', track_id, track_index, songs);
         save(playlist_id, save_state, user_id);
+        if (metrics_enabled) sendTrackTime(playlist_id, user_id, track_id, songs[track_index].name, songs[track_index].artists[0], 
+            songs[track_index].album_name, swipe_time, 'left');
     } else if (direction === 1) {
         console.log(songs[track_index]);
         save_state = saveTrack(save_state, 'right', track_id, track_index, songs);
         save(playlist_id, save_state, user_id);
+        if (metrics_enabled) sendTrackTime(playlist_id, user_id, track_id, songs[track_index].name, songs[track_index].artists[0], 
+            songs[track_index].album_name, swipe_time, 'right');
     }
+    song_time = getSecondsSinceEpoch();
     
     // Play next song
     track_index += 1;
