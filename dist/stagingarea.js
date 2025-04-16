@@ -1,4 +1,6 @@
 $(document).ready(async function () { 
+    // Variable to control what interface you see
+    let removalStage = true;
     const url = new URL(window.location.href);
     const user_id = url.searchParams.get('user_id');
     if (user_id == null) {
@@ -17,6 +19,7 @@ $(document).ready(async function () {
     Create a staging card for a song
     Params - name {string}, artists {string}, imgUrl {string}
     */
+    let container = document.getElementById('stageContainer');
     function createStagingCard(track, trackId) {
         let card = document.createElement('div');
         card.className = 'songContainer';
@@ -46,32 +49,86 @@ $(document).ready(async function () {
         remove.className = 'removeSong';
         card.appendChild(remove);
 
-        let container = document.getElementById('stageContainer');
         container.appendChild(card);
         // Add click event listener to the remove div
         remove.addEventListener('click', function() {
             // Ask the user if they are sure
-            let confirmUser = confirm('Are you sure you want to remove this song?');
+            let confirmUser = confirm(removalStage ?
+                'Are you sure you want to KEEP this song?' :
+                'Are you sure you want to REMOVE this song?');
+            
                 // If they say no, do nothing
             if (!confirmUser) {
                 return;
                 // If they say yes remove the song
             } else{
-                // Adds itself back into the right tracks, and removes itself from the left tracks
-                save_state = moveTrack(save_state, 'left', 'right', trackId);
-                // Save the new state to local storage
-                save(playlist_id, save_state, user_id);
-                // Then remove from HTML
-                container.removeChild(card);
+                if (removalStage) {
+                    // Adds itself back into the right tracks, and removes itself from the left tracks
+                    save_state = moveTrack(save_state, 'left', 'right', trackId);
+                    // Save the new state to local storage
+                    save(playlist_id, save_state, user_id);
+                    // Then remove from HTML
+                    container.removeChild(card);
+                } else {
+                    save_state = moveTrack(save_state, 'right', 'left', trackId);
+                    // Save the new state to local storage
+                    save(playlist_id, save_state, user_id);
+                    // Then remove from HTML
+                    container.removeChild(card);
+                }
+
             }
         });
     }
 
-    let data = JSON.parse(localStorage.getItem(user_id));
-    let songs = data[playlist_id];
+    // Function to Generate Cards
+    function generateCard(track_array) {
+        let data = JSON.parse(localStorage.getItem(user_id));
+        let songs = data[playlist_id];
+        Object.keys(songs[track_array]).forEach((id, index) => {
+            const track = songs[track_array][id];
+            createStagingCard(track, id);
+        });
+    }
+    
+    // Default to removal track
+    generateCard('left_tracks');
 
-    Object.keys(songs['left_tracks']).forEach((id, index) => {
-        const track = songs['left_tracks'][id];
-        createStagingCard(track, id);
+    // Toggle Button
+    const removeOption = document.getElementById('removeOption');
+    const keepOption = document.getElementById('keepOption');
+
+    function selectOption(option) {
+        if (option === 'remove') {
+            removalStage = true;
+            removeOption.classList.add('selected');
+            removeOption.classList.remove('unselected');
+            keepOption.classList.add('unselected');
+            keepOption.classList.remove('selected');
+        } else {
+            removalStage = false;
+            keepOption.classList.add('selected');
+            keepOption.classList.remove('unselected');
+            removeOption.classList.add('unselected');
+            removeOption.classList.remove('selected');
+        }
+    }
+
+    removeOption.addEventListener('click', function() {
+        selectOption('remove');
+        // remove any existing cards
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+        generateCard('left_tracks');
+    });
+    
+    keepOption.addEventListener('click', function() {
+        selectOption('keep');
+        // remove any existing cards
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+        generateCard('right_tracks');
     });
 });
