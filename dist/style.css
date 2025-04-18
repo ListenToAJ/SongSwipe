@@ -344,6 +344,7 @@ transform: translateX(200px) rotate(20deg);
 }
 
 /* Common Button Styling */
+/* Common Button Styling */
 .button_container button {
     width: 8vh;
     height: 8vh;
@@ -359,28 +360,84 @@ transform: translateX(200px) rotate(20deg);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* Remove the content:url approach entirely */
+.song_button {
+    position: relative;
+}
+
+.song_button::before,
+.song_button::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40%; /* Adjust as needed */
+    height: 40%; /* Adjust as needed */
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.song_button::before {
+    background-image: url(./assets/img/play.png);
+    opacity: 1;
+}
+
+.song_button::after {
+    background-image: url(./assets/img/pause.png);
+    opacity: 0;
+}
+
+.song_button.playing::before {
+    opacity: 0;
+}
+
+.song_button.playing::after {
+    opacity: 1;
+}
+
 .button_container button:hover {
     transform: scale(1.1);
     background-color: rgba(20, 25, 29, 1);
 }
 
-/* Individual Button Icons */
-.song_button::before {
-    content: "▶";
-    font-size: 26px;
-}
-
-.song_button.playing::before {
-    content: "⏸";
-    font-size: 40px;
-    padding-top: 5px;
+/* Song restart button */
+.song_restart {
+    position: relative;
 }
 
 .song_restart::before {
-    content: "⟳";
-    font-size: 60px;
-    padding-bottom: 7px;
-    padding-left: 6px;
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40%; /* Adjust as needed */
+    height: 40%; /* Adjust as needed */
+    background-image: url(./assets/img/restart.png);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Song restart button */
+.stage_area {
+    position: relative;
+}
+
+.stage_area::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40%; /* Adjust as needed */
+    height: 40%; /* Adjust as needed */
+    background-image: url(./assets/img/stage.png);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 /* Go Back Button Styling */
@@ -401,7 +458,7 @@ transform: translateX(200px) rotate(20deg);
     transition: all 0.2s ease;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     z-index: 300; /* Ensure it's above other elements */
-    font-size: 26px;
+    /* position: relative; Add this for proper positioning of the ::before element */
 }
 
 .back_button:hover {
@@ -413,12 +470,22 @@ transform: translateX(200px) rotate(20deg);
     transform: scale(0.95);
 }
 
-/* Back arrow icon */
+/* Back arrow icon - modified to use the image */
 .back_button::before {
-    content: "←";
-    font-size: 26px;
-    font-weight: bold;
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40%; /* Adjust as needed */
+    height: 40%; /* Adjust as needed */
+    background-image: url(./assets/img/back.png);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
 }
+
+
 
 /* LANDING PAGEEE */
 
