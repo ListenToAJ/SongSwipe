@@ -19,6 +19,106 @@ $(document).ready(async function () {
     Create a staging card for a song
     Params - name {string}, artists {string}, imgUrl {string}
     */
+
+    // Remove songs from a playlist
+    let removeAction = document.getElementById('removeAction');
+    removeAction.addEventListener('click', async function() {
+        let data = JSON.parse(localStorage.getItem(user_id));
+        let songs = Object.keys(data[playlist_id]['left_tracks']);
+
+        let removeSongs = confirm(`Are you sure you want to remove ${songs.length} songs?`);
+        if (removeSongs) {
+            let access_token = localStorage.getItem('access_token');
+            if (checkAccessTokenExpiration()) access_token = refreshAccessToken();
+            if (access_token == null) renderError('Error refreshing access token.');
+            
+            let params = new URLSearchParams();
+            params.set('playlist_id', playlist_id);
+
+            let data = { to_remove: songs };
+            let res = await fetch(`${API_URI}/playlist/remove?${params.toString()}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': access_token,
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (res.status != 200) {
+                alert('Error removing songs');
+            } else {
+                alert('Songs successfully removed!');
+            }
+            
+        }
+
+        data[playlist_id]['left_tracks'] = {};
+        save_state = data[playlist_id];
+        localStorage.setItem(user_id, JSON.stringify(data));
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+        generateCard('left_tracks');
+    });
+
+
+    let createAction = document.getElementById('createAction');
+    createAction.addEventListener('click', async function() {
+        let data = JSON.parse(localStorage.getItem(user_id));
+        let songs = Object.keys(data[playlist_id]['right_tracks']);
+
+        let playlistName = prompt(`Enter a name for a new playlist with ${songs.length} songs:`);
+        if (playlistName != "" && playlistName != null) {
+            let access_token = localStorage.getItem('access_token');
+            if (checkAccessTokenExpiration()) access_token = refreshAccessToken();
+            if (access_token == null) renderError('Error refreshing access token.');
+            
+            let data = {
+                name: playlistName,
+                description: 'Created with filtered songs from SongSwipe! https://github.com/ListenToAJ/SongSwipe',
+                is_public: true,
+            };
+
+            let createRes = await fetch(`${API_URI}/playlist/create`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': access_token,
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (createRes.status != 201) {
+                alert('Error creating playlist!');
+            }
+
+            let newPlaylist = await createRes.json();
+
+            let params = new URLSearchParams();
+            params.set('playlist_id', newPlaylist.id);
+
+            data = { to_add: songs };
+            let addRes = await fetch(`${API_URI}/playlist/add?${params.toString()}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': access_token,
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (addRes.status != 201) {
+                alert('Error adding songs to new playlist!');
+            } else {
+                alert('Created new playlist with songs.');
+            }
+        }
+    })
+
     let container = document.getElementById('stageContainer');
     function createStagingCard(track, trackId) {
         let card = document.createElement('div');

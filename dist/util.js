@@ -203,6 +203,7 @@ $(document).ready(async function () {
     } else if (pathname.includes('stagingarea.html')) {
         question_message = "ney";
         page_status = 4;
+        return; // THIS WILL PROBABLY BE REMOVED!
     }
 // Question mark handling
     // Hide Question UI Stuff Until user pressed button
