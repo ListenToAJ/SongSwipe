@@ -308,6 +308,13 @@ $(document).ready(async function () {
         window.location.href = "playlists.html";
     });
 
+    $(".stage_area").click(function () {
+        let params = new URLSearchParams();
+        params.set('user_id', user_id);
+        params.set('playlist_id', playlist_id);
+        window.location.href = window.location.pathname.replace('cards', 'stagingarea') + `?${params.toString()}`;
+    });
+
     // Restart Song Button aka start from 0
     $(".song_restart").click(function () {
         // Make sure we have a song player
