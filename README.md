@@ -15,19 +15,18 @@ It allows for a simple Tinder-inspired swipe left-or-right motion  to decide whe
     <img src="dist/assets/img/screenshot.png" alt="Screenshot" width="300">
 </p>
 
-## Feature Plans
+## Features
 ### Core Features:
 - Swiping mechanic
 - Staging area for left and right swipes
 - Options to remove from playlist, move to a new playlist, etc. for staging areas
 - Preview tracks playing automatically
 - Song, album, artist info display
+- Playlist discoverer from other people to copy, filter and save other peoples playlists
 
-### Stretch Features:
+### Potential Future Features:
 - YouTube API translation layer
 - Desktop version (Shouldn't be too hard)
-- Playlist discoverer from other people to copy, filter and save other peoples playlists
-- Pretty animations would be nice
 - Undo button
 - **Settings Options:** 
     - Light / Dark Mode / Themes
@@ -55,7 +54,7 @@ You need to provide a `.env` file with some information in order for the express
 SPOTIFY_CLIENT_ID=<YOUR SPOTIFY CLIENT ID>
 SPOTIFY_CLIENT_SECRET=<YOUR SPOTIFY SECRET>
 REDIRECT_URI_AUTH=http://127.0.0.1:9000/.netlify/functions/api/auth/callback
-REDIRECT_URI_HOME=http://127.0.0.1:8080/playlists.html
+REDIRECT_URI_HOME=http://127.0.0.1:8080/index.html
 METRICS_ENABLED=<true or false>
 ```
 You may also need to edit the sixth line of `dist/util.js` if you change the port that the backend api runs off of. 
@@ -114,8 +113,17 @@ If there are any future plans for the future of the project, write and note them
 
 
 ## Version History
-- 0.0
-    - We have nothing
+### v1.0
+- Playlist selection from user's playlists from Spotify.
+- Card swiping features to manage playlists.
+  - Swiping left stages a song to be removed.
+  - Swiping right stages a song to be kept. 
+- During management song preview is played. 
+- Staging area where you can review changes to be made.
+- Write changes to playlist to Spotify.
+  - Remove disliked songs.
+  - Create new playlist with liked songs. 
+- Import another Spotify user's public playlists. 
 
 ## License
 
@@ -123,3 +131,7 @@ If there are any future plans for the future of the project, write and note them
 All rights reserved.
 
 ## Acknowledgments
+
+Dr. Daly for offering this course and providing insight and feedback throughout the semester.
+
+Our peers who reviewed our progress throughout the project.
