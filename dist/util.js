@@ -170,3 +170,61 @@ async function sendElapsedTime(playlist_id, user_id, total_time) {
     const response = await fetch(request);
     response.status;
 }
+
+$(document).ready(async function () {
+     // Get the current URL
+    const currentURL = window.location.href;
+    // Get just the pathname (everything after the domain)
+    const pathname = window.location.pathname;
+    // Get just the filename
+    const filename = pathname.split('/').pop();
+    // Question Mark Message
+    let question_message = "YAP";
+    let page_status = null;
+    if (pathname.includes('index.html')) {
+        question_message = "YIPEE";
+        page_status = 1;
+    } else if (pathname.includes('cards.html')) {
+        question_message = `
+        PLAYLIST CONTROLS
+        ----------------
+        - Swipe Left - REMOVE song from playlist
+        - Swipe Right - KEEP song in playlist
+        - Play Button - Play the song
+        - Pause Button - Pause the song
+        - Restart Button - Restart the preview
+        - Back Arrow - Return to playlist library
+        - Menu (3 lines) - Go to staging area
+        `;
+        page_status = 2;
+    } else if (pathname.includes('playlists.html')) {
+        question_message = "rah";
+        page_status = 3;
+    } else if (pathname.includes('stagingarea.html')) {
+        question_message = "ney";
+        page_status = 4;
+        return; // THIS WILL PROBABLY BE REMOVED!
+    }
+// Question mark handling
+    // Hide Question UI Stuff Until user pressed button
+    const Question = document.getElementById('question');
+    const closeButton = document.getElementById('close-question');
+    questionText = document.getElementById('question_text');
+    questionText.innerHTML = question_message;
+    Question.classList.add('hidden');
+
+    $(".question_button").click(function () {
+        Question.classList.remove('hidden');
+        if (page_status == 2) {
+            pauseSong();
+        }
+    });
+
+    // Close overlay when button is clicked
+    closeButton.addEventListener('click', async function () {
+        Question.classList.add('hidden');
+        if (page_status == 2) {
+            playSong();
+        }
+    });
+});

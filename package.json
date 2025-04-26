@@ -6,6 +6,7 @@
     "start": "npx tsc && ./node_modules/.bin/netlify-lambda serve build",
     "dev": "npx tsc && concurrently \"http-server ./dist/\" \"./node_modules/.bin/netlify-lambda serve build\"",
     "build": "npx tsc && ./node_modules/.bin/netlify-lambda build build",
+    "windows": "npx tsc && concurrently \"http-server ./dist/\" \".\\node_modules\\.bin\\netlify-lambda.cmd serve build\"",
     "test": "jest"
   },
   "dependencies": {

@@ -31,6 +31,7 @@ $(document).ready(async function () {
     closeButton.classList.add('hidden');
     // Overlay Variables
     overlay_playlist_title = document.getElementById('loading_playlist_title_variable');
+
     // Song_player object
     // Empty song file instead of null
     let song_player = new Audio("https://bigsoundbank.com/UPLOAD/mp3/0917.mp3");
@@ -192,7 +193,7 @@ $(document).ready(async function () {
     }
 
     // Refactor to play songs
-    function playSong() {
+    window.playSong = function() {
         song_player.play()
             .then(() => {
                 $(".song_button").addClass('playing');
@@ -289,17 +290,29 @@ $(document).ready(async function () {
         // Toggle play state
         if (isPlaying) {
             // Currently playing, so pause
-            song_player.pause();
-            notPlaying();
+            pauseSong();
         } else {
             // Currently paused, so play
             playSong();
         }
     });
 
+    window.pauseSong = function() {
+        // Currently playing, so pause
+        song_player.pause();
+        notPlaying();
+    }
+
     $(".back_button").click(function () {
         save(playlist_id, save_state, user_id);
         window.location.href = "playlists.html";
+    });
+
+    $(".stage_area").click(function () {
+        let params = new URLSearchParams();
+        params.set('user_id', user_id);
+        params.set('playlist_id', playlist_id);
+        window.location.href = window.location.pathname.replace('cards', 'stagingarea') + `?${params.toString()}`;
     });
 
     // Restart Song Button aka start from 0
@@ -410,7 +423,62 @@ $(document).ready(async function () {
     //     location.reload();
     // });
 
+    // Volume Button functionality
+    const track = document.querySelector('.slider-track');
+    const progress = document.getElementById('progress');
+    const handle = document.getElementById('handle');
+    const valueDisplay = document.getElementById('value');
+    let isDragging = false;
+    
+    // Initialize with 55
+    updateSlider(55);
 
+    // Handle mouse/touch events
+    handle.addEventListener('mousedown', startDrag);
+    handle.addEventListener('touchstart', startDrag, { passive: true });
+    
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('touchmove', drag, { passive: false });
+    
+    document.addEventListener('mouseup', endDrag);
+    document.addEventListener('touchend', endDrag);
+    
+    // Allow clicking on track to set value
+    track.addEventListener('click', function(e) {
+        const rect = track.getBoundingClientRect();
+        const percent = Math.min(Math.max(0, ((e.clientX - rect.left) / rect.width) * 100), 100);
+        updateSlider(Math.round(percent));
+    });
+    
+    function startDrag(e) {
+        isDragging = true;
+        handle.style.transition = 'none';
+        progress.style.transition = 'none';
+    }
+    
+    function drag(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        const rect = track.getBoundingClientRect();
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+        const percent = Math.min(Math.max(0, ((clientX - rect.left) / rect.width) * 100), 100);
+        updateSlider(Math.round(percent));
+    }
+    
+    function endDrag() {
+        if (!isDragging) return;
+        isDragging = false;
+        handle.style.transition = 'left 0.1s ease';
+        progress.style.transition = 'width 0.1s ease';
+    }
+    
+    function updateSlider(value) {
+        handle.style.left = value + '%';
+        progress.style.width = value + '%';
+        valueDisplay.textContent = value;
+        // Adjust volume
+        song_player.volume = value / 100;
+    }
     //! Swiping action listener and logic
     const SWIPE_SENSITIVITY = window.innerWidth / 1;    // Animation sensitivity
     const wrapper = document.querySelector('.mobile-wrapper');
@@ -713,15 +781,21 @@ function simulateSwipe(direction) {
     
     // Process the swipe action (save track etc.)
     let track_id = songs[track_index].track_id;
+    let swipe_time = getSecondsSinceEpoch() - song_time;
     if (direction === -1) {
         console.log(songs[track_index]);
         save_state = saveTrack(save_state, 'left', track_id, track_index, songs);
         save(playlist_id, save_state, user_id);
+        if (metrics_enabled) sendTrackTime(playlist_id, user_id, track_id, songs[track_index].name, songs[track_index].artists[0], 
+            songs[track_index].album_name, swipe_time, 'left');
     } else if (direction === 1) {
         console.log(songs[track_index]);
         save_state = saveTrack(save_state, 'right', track_id, track_index, songs);
         save(playlist_id, save_state, user_id);
+        if (metrics_enabled) sendTrackTime(playlist_id, user_id, track_id, songs[track_index].name, songs[track_index].artists[0], 
+            songs[track_index].album_name, swipe_time, 'right');
     }
+    song_time = getSecondsSinceEpoch();
     
     // Play next song
     track_index += 1;

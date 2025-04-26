@@ -114,6 +114,12 @@ body{
     position: relative;
 }
 
+#header_container_staging{
+    width: 100%;
+    height: 600px;
+    position: relative;
+}
+
 #playlist_title{
     color: white;
     font-size: 3vh;
@@ -359,28 +365,84 @@ transform: translateX(200px) rotate(20deg);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* Remove the content:url approach entirely */
+.song_button {
+    position: relative;
+}
+
+.song_button::before,
+.song_button::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40%; /* Adjust as needed */
+    height: 40%; /* Adjust as needed */
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.song_button::before {
+    background-image: url(./assets/img/play.png);
+    opacity: 1;
+}
+
+.song_button::after {
+    background-image: url(./assets/img/pause.png);
+    opacity: 0;
+}
+
+.song_button.playing::before {
+    opacity: 0;
+}
+
+.song_button.playing::after {
+    opacity: 1;
+}
+
 .button_container button:hover {
     transform: scale(1.1);
     background-color: rgba(20, 25, 29, 1);
 }
 
-/* Individual Button Icons */
-.song_button::before {
-    content: "▶";
-    font-size: 26px;
-}
-
-.song_button.playing::before {
-    content: "⏸";
-    font-size: 40px;
-    padding-top: 5px;
+/* Song restart button */
+.song_restart {
+    position: relative;
 }
 
 .song_restart::before {
-    content: "⟳";
-    font-size: 60px;
-    padding-bottom: 7px;
-    padding-left: 6px;
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40%; /* Adjust as needed */
+    height: 40%; /* Adjust as needed */
+    background-image: url(./assets/img/restart.png);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Song restart button */
+.stage_area {
+    position: relative;
+}
+
+.stage_area::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40%; /* Adjust as needed */
+    height: 40%; /* Adjust as needed */
+    background-image: url(./assets/img/stage.png);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 /* Go Back Button Styling */
@@ -401,7 +463,7 @@ transform: translateX(200px) rotate(20deg);
     transition: all 0.2s ease;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     z-index: 300; /* Ensure it's above other elements */
-    font-size: 26px;
+    /* position: relative; Add this for proper positioning of the ::before element */
 }
 
 .back_button:hover {
@@ -413,12 +475,22 @@ transform: translateX(200px) rotate(20deg);
     transform: scale(0.95);
 }
 
-/* Back arrow icon */
+/* Back arrow icon - modified to use the image */
 .back_button::before {
-    content: "←";
-    font-size: 26px;
-    font-weight: bold;
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40%; /* Adjust as needed */
+    height: 40%; /* Adjust as needed */
+    background-image: url(./assets/img/back.png);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
 }
+
+
 
 /* LANDING PAGEEE */
 
@@ -560,7 +632,7 @@ transform: translateX(200px) rotate(20deg);
     height: auto;
     width: 100%;
     position: absolute;
-    top: calc(180px - 5%);
+    top: calc(260px - 5%);
     text-align: center;
 }
 
@@ -688,6 +760,17 @@ transform: translateX(200px) rotate(20deg);
     padding-right: 2px;
 }
 
+.action {
+    color: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(1px);
+}
+
+.action:hover {
+    color: rgba(0, 0, 0, 1);
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(1px);
+}
 
 .selected {
     color: rgba(0, 0, 0, 1);
@@ -704,4 +787,187 @@ transform: translateX(200px) rotate(20deg);
 .status-text {
     margin-top: 20px;
     font-size: 16px;
+}
+
+.slider-container {
+    border: 2px solid #FAF9F6; 
+    display: flex;
+    /* Fixed positioning relative to viewport height */
+    position: absolute;
+    left: 50%;
+    top: 72.5vh; /* Center vertically at 50% of viewport height */
+    transform: translate(-50%, -50%); /* Center both horizontally and vertically */
+    align-items: center;
+    background-color: rgba(20, 25, 29, 0.8);
+    border-radius: 50px;
+    padding: 20px 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    width: 80%;
+    height: 2%;
+    margin: 50px auto;
+    gap: 20px;
+    z-index: 500;
+}
+
+.slider-track {
+    position: relative;
+    height: 8px;
+    background-color: #EEEEEE;
+    border-radius: 3px;
+    flex-grow: 1;
+    z-index: 200;
+}
+
+.slider-progress {
+    position: absolute;
+    height: 100%;
+    background-color: #00C8E6;
+    border-radius: 3px;
+    width: 70%;
+}
+
+.slider-handle {
+    position: absolute;
+    width: 2vh;
+    height: 2vh;
+    background-color: white;
+    border-radius: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    left: 70%;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    border: 2px solid #00C8E6;
+}
+
+.slider-value {
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+    min-width: 30px;
+    text-align: right;
+}
+
+/* Go Back Button Styling */
+.question_button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 8vh;
+    height: 8vh;
+    border-radius: 50%;
+    border: 2px solid #FAF9F6;
+    background-color: rgba(20, 25, 29, 0.8);
+    color: #FAF9F6;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 300; /* Ensure it's above other elements */
+    /* position: relative; Add this for proper positioning of the ::before element */
+}
+
+.question_button:hover {
+    transform: scale(1.1);
+    background-color: rgba(20, 25, 29, 1);
+}
+
+.question_button:active {
+    transform: scale(0.95);
+}
+
+.question_button::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40%; /* Adjust as needed */
+    height: 40%; /* Adjust as needed */
+    background-image: url(./assets/img/question.png);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* When User is confused */
+#question {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgb(32,32,32);
+    /* padding-top: env(safe-area-inset-top); */
+    background-image: url('assets/img/background.jpg');
+    background-size: cover;  /* Ensures the image covers the whole screen */
+    background-position: center; /* Centers the image */
+    background-repeat: no-repeat; /* Prevents tiling */
+    overscroll-behavior-x: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.question-content {
+    /* background-color: white; */
+    /* padding: 20px; */
+    border-radius: 5px;
+    max-width: 500px;
+    text-align: center;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    z-index: 1000;
+}
+
+#question.hidden {
+    display: none;
+}
+
+#close-question {
+    position: absolute;
+    z-index: 1001;
+    margin-top: 15px;
+    bottom: 5vh;
+    padding: 28px 46px;
+    background-color: #14191d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: auto;
+    left: 0px;
+    right: 0px;
+    width: 50%;
+    font-size: 2.7vh;
+    letter-spacing: -0.01em;
+    font-family: 'Gotham' !important;
+    border: 2px solid;
+}
+
+#close-question.hidden {
+    display: none;
+}
+
+#question_text {
+    color: white;
+    font-size: 2.8vh;
+    top: 400px;
+    transform: translate(-50%, -50%); /* Center both horizontally and vertically */
+    margin: auto;
+    display: flex;
+    position: absolute;
+    width: 90%;
+    max-width: 600px;
+    z-index: 1000;
+    font-family: 'DM Serif Display';
+    text-align: left;
+    padding: 15px;
+    line-height: 2.2; /* Increased line height for spacing */
+    white-space: pre-line; /* Preserves new lines from the text */
 }
