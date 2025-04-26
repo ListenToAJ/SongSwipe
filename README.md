@@ -75,6 +75,7 @@ Once dependencies are installed and the `.env` file iat the moment as well due t
 ```
 npm start (will just run the backend express app, use if you plan to use your own http server to distribute the frontend)
 npm run dev (will launch both a server to distribute the frontend and execute the backend)
+npm run windows (basically npm run dev for windows cause windows is quirky!)
 ```
 The below URL will bring you to the landing page for the application. Please note port `8080` is the default port for `http-server` and port `9000` is the default port for the express backend so if you decide to change them make sure you update the urls accordingly. 
 ```
