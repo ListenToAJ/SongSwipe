@@ -54,7 +54,7 @@ You need to provide a `.env` file with some information in order for the express
 SPOTIFY_CLIENT_ID=<YOUR SPOTIFY CLIENT ID>
 SPOTIFY_CLIENT_SECRET=<YOUR SPOTIFY SECRET>
 REDIRECT_URI_AUTH=http://127.0.0.1:9000/.netlify/functions/api/auth/callback
-REDIRECT_URI_HOME=http://127.0.0.1:8080/index.html
+REDIRECT_URI_HOME=http://127.0.0.1:8080/token.html
 METRICS_ENABLED=<true or false>
 ```
 You may also need to edit the sixth line of `dist/util.js` if you change the port that the backend api runs off of. 
